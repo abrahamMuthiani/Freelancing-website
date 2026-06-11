@@ -19,8 +19,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/innobridge')
-  .then(() => console.log(' MongoDB connected'))
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/innobridge';
+
+mongoose.connect(mongoURI)
+  .then(() => console.log(' MongoDB connection established!'))
   .catch(err => console.error(' MongoDB connection error:', err));
 
 const insertDefaultAdmin = async () => {
