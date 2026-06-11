@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Projects - Innobridge</title>
+  <link rel="stylesheet" href="my-project.css" />
+</head>
+<body>
+  <div class="header">
+    <div class="container">
+      <div class="header-content">
+        <div>
+          <h1>My Projects</h1>
+          <p>Manage and track all your posted projects</p>
+        </div>
+        <a href="post-project.html" class="post-project-btn">+ Post New Project</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Status</label>
+        <select class="filter-select" id="statusFilter">
+          <option value="">All Status</option>
+          <option value="open">Open</option>
+          <option value="in-progress">In Progress</option>
+          <option value="closed">Closed</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Sort By</label>
+        <select class="filter-select" id="sortFilter">
+          <option value="date-desc">Newest First</option>
+          <option value="date-asc">Oldest First</option>
+          <option value="budget-desc">Highest Budget</option>
+          <option value="budget-asc">Lowest Budget</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="projects-container">
+      <div class="projects-grid" id="projectsGrid"></div>
+
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <svg class="empty-icon" viewBox="0 0 200 200" fill="none">
+          <circle cx="100" cy="100" r="80" stroke="#0d9488" stroke-width="2" opacity="0.3"/>
+          <path d="M70 90h60M70 110h40M70 130h50" stroke="#0d9488" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+          <circle cx="100" cy="60" r="15" fill="#0d9488" opacity="0.7"/>
+        </svg>
+        <h3>No Projects Yet</h3>
+        <p>You haven't posted any projects yet. Click below to get started and connect with talented professionals.</p>
+        <button class="post-project-btn" onclick="openPostProjectModal()">Post Your First Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <button class="fab" onclick="openPostProjectModal()">+</button>
+
+  <!-- Project Detail Modal -->
+  <div class="modal" id="projectModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Project Details</h2>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="project-detail" id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+let projects = [];
+let filteredProjects = [];
+
+// ============================
+// HELPER FUNCTIONS
+// ============================
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric'
+  });
+}
+
+// ============================
+// RENDER PROJECTS
+// ============================
+function renderProjects() {
+  const grid = document.getElementById('projectsGrid');
+  const empty = document.getElementById('emptyState');
+
+  if (!filteredProjects.length) {
+    grid.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.style.display = 'grid';
+  grid.innerHTML = filteredProjects.map(p => `
+    <div class="project-card" onclick="viewProject('${p._id}')">
+      <div class="project-header">
+        <div><div class="project-title">${p.title}</div></div>
+        <span class="project-status status-${p.status || 'open'}">${p.status || 'Open'}</span>
+      </div>
+      <div class="project-meta">
+        <div class="meta-item">Posted: ${formatDate(p.createdAt)}</div>
+        <div class="meta-item">Budget: ${p.budget || '-'} ${p.currency || ''}</div>
+        <div class="meta-item">Applicants: ${Array.isArray(p.applicants) ? p.applicants.length : 0}</div>
+        <div class="meta-item">Deadline: ${formatDate(p.deadline)}</div>
+      </div>
+      <div class="project-summary">${p.description ? p.description.slice(0, 120) : ''}...</div>
+      <div class="project-actions">
+        <button class="action-btn btn-primary" onclick="event.stopPropagation(); viewProject('${p._id}')">View Details</button>
+        <button class="action-btn btn-secondary" onclick="event.stopPropagation(); editProject('${p._id}')">Edit</button>
+        ${p.status !== 'closed' ? `<button class="action-btn btn-danger" onclick="event.stopPropagation(); closeProject('${p._id}')">Close</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============================
+// FILTER AND SORT
+// ============================
+function applyFilters() {
+  const status = document.getElementById('statusFilter').value;
+  const sort = document.getElementById('sortFilter').value;
+
+  filteredProjects = projects.filter(p => !status || p.status === status);
+
+  filteredProjects.sort((a, b) => {
+    const aDate = new Date(a.createdAt);
+    const bDate = new Date(b.createdAt);
+    switch (sort) {
+      case 'date-desc': return bDate - aDate;
+      case 'date-asc': return aDate - bDate;
+      case 'budget-desc': return (b.budget || 0) - (a.budget || 0);
+      case 'budget-asc': return (a.budget || 0) - (b.budget || 0);
+      default: return 0;
+    }
+  });
+
+  renderProjects();
+}
+
+// ============================
+// FETCH PROJECTS FOR LOGGED-IN USER
+// ============================
+async function fetchProjects() {
+  const storedUser = JSON.parse(localStorage.getItem('user'));
+  if (!storedUser || (!storedUser._id && !storedUser.email)) {
+    alert('⚠️ Please login to view your projects.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    // Backend may accept _id or email depending on implementation
+    const userIdentifier = storedUser._id || storedUser.email;
+    const res = await fetch(`http://localhost:3000/api/projects/user/${userIdentifier}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status} - Failed to fetch projects`);
+
+    projects = await res.json();
+    if (!Array.isArray(projects)) projects = [];
+    applyFilters();
+  } catch (err) {
+    console.error('Fetch projects error:', err);
+    alert(' Could not load your projects. Check console for details.');
+  }
+}
+
+// ============================
+// MODAL AND NAVIGATION
+// ============================
+function openPostProjectModal() {
+  window.location.href = 'post-project.html';
+}
+
+function viewProject(id) {
+  const project = projects.find(p => p._id === id);
+  if (!project) return;
+
+  document.getElementById('modalTitle').textContent = project.title;
+  document.getElementById('modalContent').innerHTML = `
+    <div class="detail-section"><h4>Status</h4><span>${project.status || 'Open'}</span></div>
+    <div class="detail-section"><h4>Description</h4><p>${project.description || ''}</p></div>
+    <div class="detail-section"><h4>Budget</h4><p>${project.budget || '-'} ${project.currency || ''}</p></div>
+    <div class="detail-section"><h4>Deadline</h4><p>${formatDate(project.deadline)}</p></div>
+    <div class="detail-section"><h4>Applicants</h4><p>${Array.isArray(project.applicants) ? project.applicants.length : 0}</p></div>
+  `;
+  document.getElementById('projectModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('projectModal').classList.remove('active');
+}
+
+function editProject(id) {
+  window.location.href = `post-project.html?edit=${id}`;
+}
+
+async function closeProject(id) {
+  if (!confirm('Are you sure you want to close this project?')) return;
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/projects/close/${id}`, { method: 'PATCH' });
+    if (!res.ok) throw new Error(`HTTP ${res.status} - Failed to close project`);
+
+    const project = projects.find(p => p._id === id);
+    if (project) project.status = 'closed';
+    applyFilters();
+  } catch (err) {
+    console.error('Close project error:', err);
+    alert(' Could not close project. Check console for details.');
+  }
+}
+
+// ============================
+// EVENT LISTENERS
+// ============================
+document.getElementById('statusFilter').addEventListener('change', applyFilters);
+document.getElementById('sortFilter').addEventListener('change', applyFilters);
+document.getElementById('projectModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// Load projects on page load
+window.addEventListener('DOMContentLoaded', fetchProjects);
+</script>
+
+</body>
+</html>

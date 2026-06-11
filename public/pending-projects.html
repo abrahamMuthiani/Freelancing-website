@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pending Projects | InnoBridge Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+  <header class="bg-[#006666] text-white p-4 shadow">
+    <h1 class="text-2xl font-bold">Pending Project Reviews</h1>
+  </header>
+
+  <main class="p-6 max-w-5xl mx-auto">
+    <div class="bg-white shadow rounded-lg p-4 mb-4">
+      <h2 class="text-xl font-semibold text-[#006666] mb-2">Projects Awaiting Approval</h2>
+      <div id="project-list" class="space-y-4">
+        <!-- Projects will be injected here -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    async function fetchPendingProjects() {
+      try {
+        const res = await fetch('http://localhost:3000/api/projects?status=pending');
+        const projects = await res.json();
+
+        const container = document.getElementById('project-list');
+        container.innerHTML = '';
+
+        if (!projects.length) {
+          container.innerHTML = '<p class="text-gray-600">No pending projects at the moment.</p>';
+          return;
+        }
+
+        projects.forEach(project => {
+          const div = document.createElement('div');
+          div.className = 'border border-gray-200 rounded p-4 shadow-sm';
+
+          div.innerHTML = `
+            <h3 class="text-lg font-bold text-[#006666]">${project.title}</h3>
+            <p class="text-gray-700 mb-2">${project.description}</p>
+            <p class="text-sm text-gray-600">Budget: <strong>KES ${project.budget}</strong></p>
+            <p class="text-sm text-gray-600 mb-2">Deadline: ${new Date(project.deadline).toLocaleDateString()}</p>
+            <button onclick="approveProject('${project._id}')" class="bg-[#006666] text-white px-4 py-2 rounded hover:bg-teal-800">
+              Approve
+            </button>
+          `;
+
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error(err);
+        document.getElementById('project-list').innerHTML = '<p class="text-red-600">Error fetching projects.</p>';
+      }
+    }
+
+    async function approveProject(projectId) {
+      try {
+        const res = await fetch(`http://localhost:3000/api/projects/approve/${projectId}`, {
+          method: 'POST'
+        });
+
+        const result = await res.json();
+        alert(result.message);
+        fetchPendingProjects(); // Refresh list
+      } catch (err) {
+        alert('Error approving project.');
+        console.error(err);
+      }
+    }
+
+    // Initial load
+    fetchPendingProjects();
+  </script>
+</body>
+</html>

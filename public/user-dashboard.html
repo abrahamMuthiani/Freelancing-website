@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelancer Dashboard - InnoBridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 100%);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            transition: transform 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scale(1.2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(13, 148, 136, 0.12);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #0f9b8e 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 0;
+            background: #0f9b8e;
+            border-radius: 0 3px 3px 0;
+            transition: height 0.3s ease;
+        }
+
+        .sidebar-link:hover::before,
+        .sidebar-link.active::before {
+            height: 70%;
+        }
+
+        .sidebar-link.active {
+            background: rgba(15, 155, 142, 0.1);
+            color: #0f9b8e;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .activity-item {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .activity-item:hover {
+            border-left-color: #0f9b8e;
+            background: rgba(15, 155, 142, 0.05);
+        }
+
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .badge-glow {
+            box-shadow: 0 0 15px rgba(15, 155, 142, 0.5);
+        }
+
+        /* ===== Sidebar overlay for mobile ===== */
+        #sidebarOverlay {
+            display: none;
+        }
+        #sidebarOverlay.active {
+            display: block;
+        }
+
+        /* ===== Responsive tweaks ===== */
+        @media (max-width: 767px) {
+            #sidebar {
+                width: 80%;
+                max-width: 18rem;
+            }
+
+            header .gradient-text {
+                font-size: 1.25rem;
+            }
+
+            #welcomeText {
+                display: none;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-card .text-4xl {
+                font-size: 1.75rem;
+            }
+        }
+
+        @media (max-width: 639px) {
+            header .flex.items-center.gap-4 > div > h1 {
+                font-size: 1.1rem;
+            }
+
+            #userFirstName {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+    <div class="flex h-screen">
+
+        <!-- Mobile Overlay -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 z-40 md:hidden"></div>
+
+        <!-- Enhanced Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 glass shadow-2xl transform transition-transform duration-300 ease-in-out md:translate-x-0 -translate-x-full">
+            <div class="flex flex-col h-full">
+                <!-- Logo Section -->
+                <div class="px-6 py-6 border-b border-gray-200 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center font-bold text-xl text-white shadow-lg">
+                            IB
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold gradient-text">InnoBridge</div>
+                            <div class="text-xs text-gray-500">Freelancer Portal</div>
+                        </div>
+                    </div>
+                    <button id="sidebarClose" class="md:hidden p-2 rounded-xl hover:bg-gray-100">
+                        <i class="ri-close-line text-2xl"></i>
+                    </button>
+                </div>
+
+                <!-- User Profile -->
+                <div class="px-4 py-5 border-b border-gray-200">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white shadow-lg">
+                                <i class="ri-user-line text-xl"></i>
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white pulse-dot"></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div id="userName" class="font-semibold text-gray-900 truncate">Loading...</div>
+                            <div id="userField" class="text-xs text-gray-500 truncate">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex-1 overflow-y-auto py-6 px-3">
+                    <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 mb-3">Main Menu</div>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="#" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50">
+                                <i class="ri-dashboard-3-line text-xl"></i>
+                                <span class="font-medium">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="profile.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50">
+                                <i class="ri-user-settings-line text-xl"></i>
+                                <span class="font-medium">My Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="requested-projects.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50">
+                                <i class="ri-briefcase-line text-xl"></i>
+                                <span class="font-medium">My Projects</span>
+                                <span id="myProjectsBadge" class="ml-auto bg-teal-100 text-teal-700 text-xs font-bold px-2 py-1 rounded-full">0</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="available-project.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50">
+                                <i class="ri-search-line text-xl"></i>
+                                <span class="font-medium">Browse Projects</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="page-not-available.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50">
+                                <i class="ri-message-3-line text-xl"></i>
+                                <span class="font-medium">Messages</span>
+                                <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="payment.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50">
+                                <i class="ri-wallet-3-line text-xl"></i>
+                                <span class="font-medium">Wallet</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 mb-3 mt-8">Settings</div>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50">
+                                <i class="ri-settings-3-line text-xl"></i>
+                                <span class="font-medium">Account Settings</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50">
+                                <i class="ri-shield-keyhole-line text-xl"></i>
+                                <span class="font-medium">Privacy & Security</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- Logout -->
+                <div class="p-4 border-t border-gray-200">
+                    <a href="index.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600">
+                        <i class="ri-logout-box-line text-xl"></i>
+                        <span class="font-medium">Sign Out</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 md:ml-72 w-full min-w-0">
+            <!-- Enhanced Header -->
+            <header class="glass shadow-sm sticky top-0 z-30">
+                <div class="flex items-center justify-between h-20 px-4 sm:px-6">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <button id="sidebarToggle" class="md:hidden p-2 rounded-xl hover:bg-gray-100 flex-shrink-0">
+                            <i class="ri-menu-line text-2xl"></i>
+                        </button>
+                        <div class="min-w-0">
+                            <h1 class="text-xl sm:text-2xl font-bold gradient-text truncate">Dashboard</h1>
+                            <p id="welcomeText" class="text-sm text-gray-600 truncate">Welcome back! Here's your overview</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                        <!-- Wallet Display -->
+                        <div class="hidden sm:flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-200">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white">
+                                <i class="ri-wallet-3-line text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-600">Balance</div>
+                                <div id="walletBalance" class="text-lg font-bold text-teal-700">0.00</div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications -->
+                        <button class="relative p-2 sm:p-3 rounded-xl hover:bg-gray-100 transition">
+                            <i class="ri-notification-3-line text-xl sm:text-2xl text-gray-700"></i>
+                            <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full pulse-dot"></span>
+                        </button>
+
+                        <!-- Profile Dropdown -->
+                        <div class="relative" id="profileDropdown">
+                            <button class="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-xl hover:bg-gray-100 transition">
+                                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white">
+                                    <i class="ri-user-line"></i>
+                                </div>
+                                <div id="userFirstName" class="hidden md:block font-semibold text-gray-900">User</div>
+                                <i class="ri-arrow-down-s-line hidden md:block text-gray-600"></i>
+                            </button>
+
+                            <div id="profileMenu" class="absolute right-0 mt-2 w-56 glass rounded-xl shadow-2xl py-2 hidden z-50">
+                                <a href="profile.html" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="ri-user-line"></i>
+                                    Your Profile
+                                </a>
+                                <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="ri-settings-3-line"></i>
+                                    Settings
+                                </a>
+                                <hr class="my-2 border-gray-200">
+                                <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50">
+                                    <i class="ri-logout-box-line"></i>
+                                    Sign Out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile wallet bar -->
+                <div class="sm:hidden flex items-center justify-between px-4 pb-3">
+                    <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-200 w-full">
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white flex-shrink-0">
+                            <i class="ri-wallet-3-line"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-600">Balance</div>
+                            <div id="walletBalanceMobile" class="text-base font-bold text-teal-700">0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="p-4 sm:p-6">
+                <!-- Stats Cards -->
+                <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                    <div class="stat-card glass rounded-2xl p-4 sm:p-6 shadow-lg">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-gray-600 mb-2">Active Projects</div>
+                                <div id="active-projects-count" class="text-3xl sm:text-4xl font-bold text-gray-900">...</div>
+                                <div class="flex items-center gap-1 mt-3 text-sm">
+                                    <i id="growth-icon" class="ri-arrow-up-line text-green-600"></i>
+                                    <span id="project-growth-text" class="text-green-600 font-semibold truncate">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white shadow-lg flex-shrink-0">
+                                <i class="ri-folder-line text-xl sm:text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card glass rounded-2xl p-4 sm:p-6 shadow-lg">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-gray-600 mb-2">Pending Tasks</div>
+                                <div id="pending-tasks-count" class="text-3xl sm:text-4xl font-bold text-gray-900">0</div>
+                                <div class="flex items-center gap-1 mt-3 text-sm">
+                                    <i class="ri-time-line text-amber-600"></i>
+                                    <span id="pending-tasks-due" class="text-amber-600 font-semibold truncate">0 due today</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center text-white shadow-lg flex-shrink-0">
+                                <i class="ri-task-line text-xl sm:text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card glass rounded-2xl p-4 sm:p-6 shadow-lg">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-gray-600 mb-2">Unread Messages</div>
+                                <div id="unread-messages-count" class="text-3xl sm:text-4xl font-bold text-gray-900">0</div>
+                                <div class="flex items-center gap-1 mt-3 text-sm">
+                                    <i class="ri-message-3-line text-teal-600"></i>
+                                    <span id="new-messages-count" class="text-teal-600 font-semibold truncate">0 new</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white shadow-lg flex-shrink-0">
+                                <i class="ri-mail-line text-xl sm:text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card glass rounded-2xl p-4 sm:p-6 shadow-lg">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-gray-600 mb-2">Total Earnings</div>
+                                <div class="text-3xl sm:text-4xl font-bold text-gray-900">0.00</div>
+                                <div class="flex items-center gap-1 mt-3 text-sm">
+                                    <i class="ri-arrow-up-line text-green-600"></i>
+                                    <span class="text-green-600 font-semibold truncate">0% this month</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center text-white shadow-lg flex-shrink-0">
+                                <i class="ri-money-dollar-circle-line text-xl sm:text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                    <!-- Recent Activities -->
+                    <div class="lg:col-span-2 space-y-4 sm:space-y-6">
+                        <div class="glass rounded-2xl shadow-lg overflow-hidden">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-200">
+                                <div>
+                                    <h2 class="text-lg sm:text-xl font-bold text-gray-900">Recent Activities</h2>
+                                    <p class="text-sm text-gray-500 mt-1">Your latest project updates</p>
+                                </div>
+                                <button class="px-4 py-2 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition font-semibold text-sm self-start sm:self-auto">
+                                    View All
+                                </button>
+                            </div>
+                            <div class="p-4 sm:p-6">
+                                <div id="recentActivities" class="space-y-4">
+                                    <p class="text-sm text-gray-500 text-center py-8">Loading activities...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project Timeline -->
+                        <div class="glass rounded-2xl shadow-lg overflow-hidden">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-200">
+                                <div>
+                                    <h2 class="text-lg sm:text-xl font-bold text-gray-900">Project Timeline</h2>
+                                    <p class="text-sm text-gray-500 mt-1">Track your progress</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="px-3 sm:px-4 py-2 bg-teal-600 text-white rounded-xl text-sm font-semibold">This Week</button>
+                                    <button class="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200">This Month</button>
+                                </div>
+                            </div>
+                            <div class="p-4 sm:p-6">
+                                <div id="projectTimeline" class="w-full h-64 sm:h-80"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Widgets -->
+                    <div class="space-y-4 sm:space-y-6">
+                        <!-- Quick Actions -->
+                        <div class="glass rounded-2xl shadow-lg p-4 sm:p-6">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+                            <div class="space-y-3">
+                                <a href="requested-projects.html" class="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 hover:from-teal-100 hover:to-cyan-100 transition border border-teal-200">
+                                    <div class="w-10 h-10 rounded-lg bg-teal-600 flex items-center justify-center text-white flex-shrink-0">
+                                        <i class="ri-briefcase-line"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-semibold text-gray-900">My Projects</div>
+                                        <div class="text-xs text-gray-600">View & manage</div>
+                                    </div>
+                                    <i class="ri-arrow-right-line text-teal-600"></i>
+                                </a>
+
+                                <a href="available-project.html" class="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-cyan-50 to-teal-50 hover:from-cyan-100 hover:to-teal-100 transition border border-cyan-200">
+                                    <div class="w-10 h-10 rounded-lg bg-cyan-600 flex items-center justify-center text-white flex-shrink-0">
+                                        <i class="ri-search-line"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-semibold text-gray-900">Find Work</div>
+                                        <div class="text-xs text-gray-600">Browse projects</div>
+                                    </div>
+                                    <i class="ri-arrow-right-line text-cyan-600"></i>
+                                </a>
+
+                                <a href="payment.html" class="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 hover:from-teal-100 hover:to-cyan-100 transition border border-teal-200">
+                                    <div class="w-10 h-10 rounded-lg bg-teal-700 flex items-center justify-center text-white flex-shrink-0">
+                                        <i class="ri-wallet-3-line"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-semibold text-gray-900">My Wallet</div>
+                                        <div class="text-xs text-gray-600">View earnings</div>
+                                    </div>
+                                    <i class="ri-arrow-right-line text-teal-700"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Messages Preview -->
+                        <div class="glass rounded-2xl shadow-lg overflow-hidden">
+                            <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-bold text-gray-900">Messages</h3>
+                                <button class="text-sm text-teal-600 hover:text-teal-700 font-semibold">View All</button>
+                            </div>
+                            <div class="p-4 sm:p-6">
+                                <div class="flex flex-col items-center justify-center text-center py-8">
+                                    <div class="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+                                        <i class="ri-message-3-line text-3xl text-teal-300"></i>
+                                    </div>
+                                    <p class="text-sm font-semibold text-gray-700">No New Messages</p>
+                                    <p class="text-xs text-gray-500 mt-1">Check back later for updates</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transaction History -->
+                        <div class="glass rounded-2xl shadow-lg overflow-hidden">
+                            <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-bold text-gray-900">Recent Transactions</h3>
+                                <button class="text-sm text-teal-600 hover:text-teal-700 font-semibold">View All</button>
+                            </div>
+                            <div class="p-4 sm:p-6">
+                                <div id="transaction-history" class="space-y-3">
+                                    <div class="flex flex-col items-center justify-center text-center py-8">
+                                        <div class="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+                                            <i class="ri-file-list-line text-3xl text-teal-300"></i>
+                                        </div>
+                                        <p class="text-sm font-semibold text-gray-700">No Transactions Yet</p>
+                                        <p class="text-xs text-gray-500 mt-1">Start working on projects to see earnings</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Toggle (mobile)
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            sidebarOverlay.classList.add('active');
+        }
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.remove('active');
+        }
+
+        document.getElementById('sidebarToggle').addEventListener('click', openSidebar);
+        document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+
+        // Close sidebar when a nav link is tapped on mobile
+        document.querySelectorAll('#sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) closeSidebar();
+            });
+        });
+
+        // Profile Dropdown
+        document.getElementById('profileDropdown').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('profileMenu').classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', () => {
+            document.getElementById('profileMenu').classList.add('hidden');
+        });
+
+        // Load User Data
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Set user info
+            document.getElementById('userName').textContent = `${user.firstName} ${user.lastName || ''}`;
+            document.getElementById('userField').textContent = user.fieldOfWork || 'Freelancer';
+            document.getElementById('userFirstName').textContent = user.firstName;
+            document.getElementById('welcomeText').textContent = `Welcome back, ${user.firstName}! Here's your overview`;
+        });
+
+        // Helper to format balance as 0.00
+        function formatBalance(value) {
+            const num = Number(value) || 0;
+            return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Load Wallet Balance
+        fetch('http://localhost:3000/api/payment/wallet-balance')
+            .then(res => res.json())
+            .then(data => {
+                const balance = data.balance || 0;
+                const formatted = formatBalance(balance);
+                document.getElementById('walletBalance').textContent = formatted;
+                document.getElementById('walletBalanceMobile').textContent = formatted;
+            })
+            .catch(err => {
+                console.error('Error loading wallet:', err);
+                document.getElementById('walletBalance').textContent = '0.00';
+                document.getElementById('walletBalanceMobile').textContent = '0.00';
+            });
+
+        // Load Active Projects Stats
+        fetch('http://localhost:3000/api/stats/projects')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('active-projects-count').textContent = data.activeProjects || 0;
+                document.getElementById('project-growth-text').textContent = `${data.growthRate}% from last month`;
+
+                const icon = document.getElementById('growth-icon');
+                const text = document.getElementById('project-growth-text');
+                if (data.growthRate >= 0) {
+                    icon.className = 'ri-arrow-up-line text-green-600';
+                    text.className = 'text-green-600 font-semibold truncate';
+                } else {
+                    icon.className = 'ri-arrow-down-line text-red-600';
+                    text.className = 'text-red-600 font-semibold truncate';
+                }
+            })
+            .catch(err => {
+                console.error('Error loading stats:', err);
+                document.getElementById('active-projects-count').textContent = '0';
+            });
+
+        // Load Recent Activities
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+
+            if (diff < 60) return `${diff}s ago`;
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        fetch('http://localhost:3000/api/projects/recent')
+            .then(res => res.json())
+            .then(projects => {
+                const container = document.getElementById('recentActivities');
+                const user = JSON.parse(localStorage.getItem('user'));
+
+                container.innerHTML = '';
+
+                if (!projects.length) {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-4">
+                                <i class="ri-inbox-line text-3xl text-teal-300"></i>
+                            </div>
+                            <p class="text-sm font-semibold text-gray-700">No Recent Activities</p>
+                            <p class="text-xs text-gray-500 mt-1">Start working on projects to see activities</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const recentFour = projects.slice(0, 4);
+
+                recentFour.forEach((project, index) => {
+                    const isMine = user && project.createdBy === user.email;
+                    const postedAgo = timeAgo(project.createdAt);
+                    const title = project.title || 'Untitled Project';
+                    const desc = project.description || 'No description';
+
+                    const statusColors = {
+                        'pending': 'bg-amber-100 text-amber-700',
+                        'open': 'bg-green-100 text-green-700',
+                        'in-progress': 'bg-cyan-100 text-cyan-700',
+                        'completed': 'bg-gray-100 text-gray-700'
+                    };
+
+                    const statusColor = statusColors[project.status] || 'bg-gray-100 text-gray-700';
+
+                    const activityHTML = `
+                        <div class="activity-item flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:shadow-md transition animate-slide-in" style="animation-delay: ${index * 0.1}s">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white flex-shrink-0 shadow-lg">
+                                <i class="ri-file-text-line text-lg sm:text-xl"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h4 class="font-semibold text-gray-900 truncate">${title}</h4>
+                                    <span class="text-xs px-2 py-1 rounded-full ${statusColor} whitespace-nowrap">${project.status}</span>
+                                </div>
+                                <p class="text-sm text-gray-600 line-clamp-2 mb-2">${desc}</p>
+                                <div class="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                                    <span class="flex items-center gap-1">
+                                        <i class="ri-time-line"></i>
+                                        ${postedAgo}
+                                    </span>
+                                    ${project.budget ? `
+                                        <span class="flex items-center gap-1">
+                                            <i class="ri-money-dollar-circle-line"></i>
+                                            ${project.budget}
+                                        </span>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', activityHTML);
+                });
+            })
+            .catch(err => {
+                console.error('Error loading activities:', err);
+                document.getElementById('recentActivities').innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-sm text-red-500">Error loading activities</p>
+                    </div>
+                `;
+            });
+
+        // Initialize Project Timeline Chart
+        const timelineChart = echarts.init(document.getElementById('projectTimeline'));
+        const timelineOption = {
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderColor: '#e5e7eb',
+                borderWidth: 1,
+                textStyle: {
+                    color: '#1f2937'
+                },
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: ['Completed Tasks', 'Pending Tasks'],
+                bottom: 10,
+                textStyle: {
+                    color: '#6b7280'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                top: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                axisLine: {
+                    lineStyle: {
+                        color: '#e5e7eb'
+                    }
+                },
+                axisLabel: {
+                    color: '#9ca3af'
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: {
+                    show: false
+                },
+                axisLabel: {
+                    color: '#9ca3af'
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#f3f4f6'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Completed Tasks',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#0f9b8e'
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0,
+                                color: 'rgba(15, 155, 142, 0.2)'
+                            }, {
+                                offset: 1,
+                                color: 'rgba(15, 155, 142, 0.01)'
+                            }]
+                        }
+                    },
+                    itemStyle: {
+                        color: '#0f9b8e'
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [5, 8, 10, 12, 15, 10, 7]
+                },
+                {
+                    name: 'Pending Tasks',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#06b6d4'
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0,
+                                color: 'rgba(6, 182, 212, 0.2)'
+                            }, {
+                                offset: 1,
+                                color: 'rgba(6, 182, 212, 0.01)'
+                            }]
+                        }
+                    },
+                    itemStyle: {
+                        color: '#06b6d4'
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [3, 5, 7, 4, 6, 8, 10]
+                }
+            ]
+        };
+
+        timelineChart.setOption(timelineOption);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            timelineChart.resize();
+        });
+    </script>
+</body>
+</html>

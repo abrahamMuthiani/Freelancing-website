@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Available Projects - Innobridge</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2563eb;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .project-card {
+      transition: all 0.3s ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+      position: relative;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-close {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      font-size: 2rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover {
+      color: #1f2937;
+    }
+
+    .skill-tag {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background-color: #dbeafe;
+      color: #1e40af;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .skill-tag:hover {
+      background-color: #bfdbfe;
+      transform: scale(1.05);
+    }
+
+    .urgency-tag {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    .urgency-urgent {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    .urgency-soon {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    .urgency-normal {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge-animated {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .8; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4 md:px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="bg-blue-600 text-white font-bold rounded-full w-12 h-12 flex items-center justify-center text-xl">
+            I
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800">Available Projects</h1>
+            <p class="text-sm text-gray-500">Discover opportunities and connect with clients</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <button onclick="window.location.href='user-dashboard.html'" 
+                  class="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <i class="ri-dashboard-line"></i>
+            Dashboard
+          </button>
+          <button id="mobileMenuBtn" class="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+            <i class="ri-menu-line text-2xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container mx-auto px-4 md:px-6 py-6">
+    <!-- Project Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow-md p-6 flex items-center gap-4">
+        <div class="bg-blue-100 text-blue-600 rounded-full w-14 h-14 flex items-center justify-center">
+          <i class="ri-briefcase-line text-2xl"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-600">Active Projects</h3>
+          <p id="activeProjectStat" class="text-3xl font-bold text-gray-800">
+            <span class="loading-spinner" style="width: 30px; height: 30px;"></span>
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6 flex items-center gap-4">
+        <div class="bg-green-100 text-green-600 rounded-full w-14 h-14 flex items-center justify-center">
+          <i class="ri-arrow-up-line text-2xl"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-600">Growth Rate</h3>
+          <div class="flex items-center gap-2">
+            <i id="growthIcon" class="ri-arrow-up-line text-green-600 text-xl"></i>
+            <span id="growthRateText" class="text-lg font-semibold text-green-600">Loading...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6 flex items-center gap-4">
+        <div class="bg-purple-100 text-purple-600 rounded-full w-14 h-14 flex items-center justify-center">
+          <i class="ri-filter-line text-2xl"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-600">Filtered Results</h3>
+          <p id="filteredCount" class="text-3xl font-bold text-gray-800">0</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div class="flex items-center gap-2 mb-4">
+        <i class="ri-search-line text-gray-600 text-xl"></i>
+        <h2 class="text-lg font-semibold text-gray-800">Search & Filter</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <input type="text" 
+               id="searchInput" 
+               placeholder="Search by title or keywords..." 
+               class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        
+        <select id="skillFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">All Skills</option>
+          <option value="technical">Technical</option>
+          <option value="design">Design</option>
+          <option value="writing">Writing</option>
+          <option value="marketing">Marketing</option>
+          <option value="business">Business</option>
+        </select>
+
+        <select id="budgetFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">All Budgets</option>
+          <option value="0-1000">$0 - $1,000</option>
+          <option value="1000-5000">$1,000 - $5,000</option>
+          <option value="5000-10000">$5,000 - $10,000</option>
+          <option value="10000+">$10,000+</option>
+        </select>
+
+        <select id="deadlineFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">All Deadlines</option>
+          <option value="urgent">Urgent (&lt; 1 week)</option>
+          <option value="short">Short term (1-4 weeks)</option>
+          <option value="medium">Medium term (1-3 months)</option>
+          <option value="flexible">Flexible</option>
+        </select>
+
+        <button onclick="clearFilters()" 
+                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center gap-2">
+          <i class="ri-close-circle-line"></i>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="flex flex-col items-center justify-center py-16">
+      <div class="loading-spinner mb-4"></div>
+      <p class="text-gray-600">Loading projects...</p>
+    </div>
+
+    <!-- Projects Grid -->
+    <div id="projectsGrid" class="hidden grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+      <!-- Projects will be populated by JavaScript -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden">
+      <div class="bg-white rounded-lg shadow-lg p-12 text-center max-w-md mx-auto">
+        <i class="ri-inbox-line text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">No projects found</h3>
+        <p class="text-gray-500 mb-6">Try adjusting your search criteria or browse all available projects</p>
+        <button onclick="clearFilters()" 
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Detail Modal -->
+  <div class="modal" id="projectModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <div id="modalContent">
+        <!-- Modal content populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:3000/api';
+    let allProjects = [];
+    let filteredProjects = [];
+    let currentUser = null;
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      currentUser = getUserFromStorage();
+      
+      if (!currentUser) {
+        showNotification('Please log in to view available projects', 'warning');
+        setTimeout(() => window.location.href = 'login.html', 2000);
+        return;
+      }
+
+      await Promise.all([
+        loadProjectStats(),
+        loadProjects()
+      ]);
+
+      displayProjects(filteredProjects);
+      initFilters();
+      initModalClose();
+    });
+
+    // Get user from localStorage
+    function getUserFromStorage() {
+      try {
+        const userStr = localStorage.getItem('user');
+        return userStr ? JSON.parse(userStr) : null;
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        return null;
+      }
+    }
+
+    // Load project statistics
+    async function loadProjectStats() {
+      const statEl = document.getElementById('activeProjectStat');
+      const rateText = document.getElementById('growthRateText');
+      const growthIcon = document.getElementById('growthIcon');
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/stats/projects`);
+        
+        if (!res.ok) throw new Error('Failed to fetch stats');
+        
+        const data = await res.json();
+        const activeCount = data.activeProjects ?? 0;
+        const growthRate = parseFloat(data.growthRate ?? 0).toFixed(1);
+
+        statEl.textContent = activeCount;
+        rateText.textContent = `${growthRate}%`;
+
+        if (growthRate >= 0) {
+          growthIcon.className = 'ri-arrow-up-line text-green-600 text-xl';
+          rateText.className = 'text-lg font-semibold text-green-600';
+        } else {
+          growthIcon.className = 'ri-arrow-down-line text-red-600 text-xl';
+          rateText.className = 'text-lg font-semibold text-red-600';
+        }
+      } catch (error) {
+        console.error('Error loading project stats:', error);
+        statEl.textContent = 'N/A';
+        rateText.textContent = 'N/A';
+      }
+    }
+
+    // Load all projects
+    async function loadProjects() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/projects`);
+        
+        if (!res.ok) throw new Error('Failed to fetch projects');
+        
+        const data = await res.json();
+        allProjects = data;
+        filteredProjects = [...allProjects];
+        
+        updateFilteredCount();
+      } catch (error) {
+        console.error("Failed to fetch projects:", error);
+        showError();
+      }
+    }
+
+    // Display projects in grid
+    function displayProjects(projects) {
+      const grid = document.getElementById('projectsGrid');
+      const emptyState = document.getElementById('emptyState');
+      const loadingState = document.getElementById('loadingState');
+
+      loadingState.classList.add('hidden');
+
+      if (projects.length === 0) {
+        grid.classList.add('hidden');
+        grid.classList.remove('grid'); // ensure grid display class removed to avoid conflicting display utilities
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      // add the display grid class only when we want to show it (avoids applying 'grid' and 'hidden' simultaneously)
+      grid.classList.add('grid');
+      grid.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+
+      grid.innerHTML = projects.map((project, index) => {
+        const urgencyData = getUrgencyData(project.deadline);
+        
+        return `
+          <div class="project-card bg-white rounded-lg shadow-md p-6 cursor-pointer" onclick="openProjectModal(${index})">
+            <div class="flex items-start justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-800 flex-1 pr-2">${escapeHtml(project.title)}</h3>
+              <span class="urgency-tag ${urgencyData.class} whitespace-nowrap ${urgencyData.days <= 3 ? 'badge-animated' : ''}">
+                ${urgencyData.text}
+              </span>
+            </div>
+
+            <div class="text-sm text-gray-600 mb-4 flex items-center gap-2">
+              <i class="ri-user-line"></i>
+              <span>by ${escapeHtml(project.createdBy || "Anonymous")}</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="bg-gray-50 rounded-lg p-3">
+                <div class="text-xs text-gray-500 mb-1">Budget</div>
+                <div class="text-lg font-bold text-green-600">${project.currency || "$"}${formatNumber(project.budget)}</div>
+              </div>
+              <div class="bg-gray-50 rounded-lg p-3">
+                <div class="text-xs text-gray-500 mb-1">Deadline</div>
+                <div class="text-sm font-semibold text-gray-800">${formatDate(project.deadline)}</div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <span class="skill-tag">${escapeHtml(project.skillCategory || 'General')}</span>
+            </div>
+
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2">
+              ${escapeHtml((project.description || '').slice(0, 120))}${project.description?.length > 120 ? '...' : ''}
+            </p>
+
+            <div class="flex gap-2 pt-4 border-t">
+              <button onclick="event.stopPropagation(); applyToProject(${index})" 
+                      class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 font-semibold">
+                <i class="ri-send-plane-line"></i>
+                Apply Now
+              </button>
+              <button onclick="event.stopPropagation(); openProjectModal(${index})" 
+                      class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                <i class="ri-eye-line"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Get urgency data based on deadline
+    function getUrgencyData(deadline) {
+      const now = new Date();
+      const deadlineDate = new Date(deadline);
+      const days = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
+
+      if (days <= 3) {
+        return { class: 'urgency-urgent', text: `${days}d left`, days };
+      } else if (days <= 7) {
+        return { class: 'urgency-soon', text: `${days}d left`, days };
+      } else {
+        return { class: 'urgency-normal', text: `${days}d left`, days };
+      }
+    }
+
+    // Open project detail modal
+    function openProjectModal(index) {
+      const project = filteredProjects[index];
+      const modalContent = document.getElementById('modalContent');
+
+      modalContent.innerHTML = `
+        <div class="pr-8">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">${escapeHtml(project.title)}</h2>
+          
+          <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <div class="flex items-center gap-2 text-gray-600 mb-2">
+              <i class="ri-user-line"></i>
+              <span class="font-semibold">Client:</span>
+              <span>${escapeHtml(project.createdBy || 'Unknown')}</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div class="text-sm text-gray-600 mb-1">Budget</div>
+              <div class="text-2xl font-bold text-green-600">${project.currency || "$"}${formatNumber(project.budget)}</div>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="text-sm text-gray-600 mb-1">Deadline</div>
+              <div class="text-xl font-bold text-blue-600">${formatDate(project.deadline)}</div>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
+              <i class="ri-file-text-line"></i>
+              Description
+            </h3>
+            <p class="text-gray-700 leading-relaxed">${escapeHtml(project.description)}</p>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <i class="ri-code-box-line"></i>
+              Required Skills
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              <span class="skill-tag text-sm">${escapeHtml(project.skillCategory || 'General')}</span>
+              ${project.specificSkills?.map(skill => `<span class="skill-tag text-sm">${escapeHtml(skill)}</span>`).join('') || ''}
+            </div>
+          </div>
+
+          ${project.attachments?.length ? `
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <i class="ri-attachment-line"></i>
+                Attachments
+              </h3>
+              <div class="space-y-2">
+                ${project.attachments.map((id, i) => `
+                  <a href="http://localhost:3001/file/${id}" 
+                     download 
+                     target="_blank" 
+                     class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <i class="ri-file-download-line text-blue-600"></i>
+                    <span class="text-sm font-medium text-gray-700">Attachment ${i + 1}</span>
+                  </a>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="flex gap-3 pt-6 border-t">
+            <button onclick="applyToProject(${index})" 
+                    class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 font-semibold">
+              <i class="ri-send-plane-line"></i>
+              Apply to Project
+            </button>
+            <button onclick="messageClient(${index})" 
+                    class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center gap-2">
+              <i class="ri-message-3-line"></i>
+              Message
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('projectModal').classList.add('active');
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('projectModal').classList.remove('active');
+    }
+
+    // Initialize modal close on backdrop click
+    function initModalClose() {
+      document.getElementById('projectModal').addEventListener('click', function (e) {
+        if (e.target === this) closeModal();
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+      });
+    }
+
+    // Apply to project
+    function applyToProject(index) {
+      const project = filteredProjects[index];
+      
+      if (!project || !project._id) {
+        showNotification("⚠️ Project ID not found. Please try again.", 'error');
+        return;
+      }
+      
+      localStorage.setItem("selectedProjectId", project._id);
+      window.location.href = "project-request.html";
+    }
+
+    // Message client
+    function messageClient(index) {
+      const project = filteredProjects[index];
+      showNotification(`📧 Messaging ${project.createdBy || 'client'} - Feature coming soon!`, 'info');
+      closeModal();
+    }
+
+    // Initialize filters
+    function initFilters() {
+      ['searchInput', 'skillFilter', 'budgetFilter', 'deadlineFilter'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', filterProjects);
+        document.getElementById(id)?.addEventListener('change', filterProjects);
+      });
+    }
+
+    // Filter projects
+    function filterProjects() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const skill = document.getElementById('skillFilter').value;
+      const budget = document.getElementById('budgetFilter').value;
+      const deadline = document.getElementById('deadlineFilter').value;
+
+      filteredProjects = allProjects.filter(p => {
+        const matchesSearch = p.title?.toLowerCase().includes(search) || p.description?.toLowerCase().includes(search);
+        const matchesSkill = !skill || p.skillCategory === skill;
+        const matchesBudget = !budget || budgetRangeMatches(p.budget, budget);
+        const matchesDeadline = !deadline || deadlineMatch(p.deadline, deadline);
+        return matchesSearch && matchesSkill && matchesBudget && matchesDeadline;
+      });
+
+      updateFilteredCount();
+      displayProjects(filteredProjects);
+    }
+
+    // Update filtered count
+    function updateFilteredCount() {
+      document.getElementById('filteredCount').textContent = filteredProjects.length;
+    }
+
+    // Check if budget matches range
+    function budgetRangeMatches(amount, range) {
+      if (range === "0-1000") return amount <= 1000;
+      if (range === "1000-5000") return amount > 1000 && amount <= 5000;
+      if (range === "5000-10000") return amount > 5000 && amount <= 10000;
+      if (range === "10000+") return amount > 10000;
+      return true;
+    }
+
+    // Check if deadline matches filter
+    function deadlineMatch(deadlineStr, filter) {
+      const deadline = new Date(deadlineStr);
+      const now = new Date();
+      const oneWeek = 7 * 24 * 60 * 60 * 1000;
+      const fourWeeks = 4 * oneWeek;
+      const threeMonths = 3 * 30 * 24 * 60 * 60 * 1000;
+      const diff = deadline - now;
+
+      switch (filter) {
+        case 'urgent': return diff <= oneWeek;
+        case 'short': return diff > oneWeek && diff <= fourWeeks;
+        case 'medium': return diff > fourWeeks && diff <= threeMonths;
+        case 'flexible': return diff > threeMonths;
+        default: return true;
+      }
+    }
+
+    // Clear all filters
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('skillFilter').value = '';
+      document.getElementById('budgetFilter').value = '';
+      document.getElementById('deadlineFilter').value = '';
+      filteredProjects = [...allProjects];
+      updateFilteredCount();
+    // Show error state
+    function showError() {
+      document.getElementById('loadingState').classList.add('hidden');
+      const projectsGrid = document.getElementById('projectsGrid');
+      projectsGrid.classList.add('hidden');
+      projectsGrid.classList.remove('grid'); // remove grid display to avoid conflict with 'hidden'
+      document.getElementById('emptyState').classList.remove('hidden');
+    }
+      document.getElementById('projectsGrid').classList.add('hidden');
+      document.getElementById('emptyState').classList.remove('hidden');
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+      alert(message); // Replace with toast notification library
+    }
+
+    // Utility functions
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatNumber(num) {
+      return new Intl.NumberFormat('en-US').format(num);
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'N/A';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+  </script>
+</body>
+</html>

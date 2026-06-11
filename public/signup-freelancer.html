@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join Innobridge - Global Innovation Network</title>
+  <meta name="description" content="Join Innobridge - Connect with global innovation opportunities for freelancers and digital professionals" />
+  <meta name="author" content="Innobridge" />
+  <link rel="stylesheet" href="signup.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.462.0/lucide.min.js"></script>
+</head>
+<body>
+  <div class="page-container">
+    <div class="content-wrapper">
+      <div class="header-section">
+        <div class="title-with-emoji">
+          <i data-lucide="rocket" class="header-icon"></i>
+          <h1 class="main-title">Join Innobridge</h1>
+        </div>
+        <p class="subtitle">Connect with global innovation opportunities</p>
+      </div>
+
+      <div class="form-card">
+        <div class="card-header">
+          <h2 class="card-title">Create Your Account</h2>
+        </div>
+
+        <div class="card-content">
+          <form id="signupForm" class="signup-form">
+            <!-- Personal Information -->
+            <div class="form-section">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="firstName" class="form-label">First Name *</label>
+                  <input type="text" id="firstName" name="firstName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label for="lastName" class="form-label">Last Name *</label>
+                  <input type="text" id="lastName" name="lastName" class="form-input" required>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="email" class="form-label">Email *</label>
+                  <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label for="username" class="form-label">Username</label>
+                  <input type="text" id="username" name="username" class="form-input" placeholder="auto-generated">
+                </div>
+              </div>
+            </div>
+
+            <!-- Security -->
+            <div class="form-section">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="password" class="form-label">Password *</label>
+                  <div class="password-input">
+                    <input type="password" id="password" name="password" class="form-input" required>
+                    <button type="button" class="password-toggle" id="togglePassword">
+                      <i data-lucide="eye"></i>
+                    </button>
+                  </div>
+                  <div id="passwordStrength" class="password-strength" style="display: none;">
+                    <div class="strength-info">
+                      <span>Password Strength:</span>
+                      <span id="passwordStrengthText" class="strength-level">Weak</span>
+                    </div>
+                    <div class="strength-bar">
+                      <div id="passwordStrengthBar" class="strength-progress"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="confirmPassword" class="form-label">Confirm Password *</label>
+                  <div class="password-input">
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required>
+                    <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                      <i data-lucide="eye"></i>
+                    </button>
+                  </div>
+                  <div id="passwordMismatch" class="error-message" style="display: none;">Passwords do not match</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Location & Experience -->
+            <div class="form-section">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="country" class="form-label">Country *</label>
+                  <select id="country" name="country" class="form-select" required>
+                    <option value="">Select your country...</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="city" class="form-label">City</label>
+                  <input type="text" id="city" name="city" class="form-input">
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="experience" class="form-label">Experience *</label>
+                  <select id="experience" name="experience" class="form-select" required>
+                    <option value="">Select level</option>
+                    <option value="0-1">0-1 years</option>
+                    <option value="2-3">2-3 years</option>
+                    <option value="4-5">4-5 years</option>
+                    <option value="6-7">6-7 years</option>
+                    <option value="8-9">8-9 years</option>
+                    <option value="10+">10+ years</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="availableHours" class="form-label">Available Hours/Week *</label>
+                  <input type="number" id="availableHours" name="availableHours" class="form-input" min="1" max="168" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="form-section">
+              <div class="form-group">
+                <label for="skillCategory" class="form-label">Skill Category</label>
+                <select id="skillCategory" name="skillCategory" class="form-select">
+                  <option value="">Select category</option>
+                  <option value="Technical">Technical</option>
+                  <option value="Design">Design</option>
+                  <option value="Writing">Writing</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Business">Business</option>
+                </select>
+              </div>
+
+              <div id="specificSkillsSection" class="specific-skills" style="display: none;">
+                <label class="form-label">Specific Skills</label>
+                <div id="skillCheckboxes" class="skill-checkboxes"></div>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="submit-section">
+              <button type="submit" class="submit-button">Create Account</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+const form = document.getElementById('signupForm');
+const passwordInput = document.getElementById('password');
+const confirmPasswordInput = document.getElementById('confirmPassword');
+const passwordStrengthText = document.getElementById('passwordStrengthText');
+const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+const passwordMismatch = document.getElementById('passwordMismatch');
+const usernameInput = document.getElementById('username');
+const firstNameInput = document.getElementById('firstName');
+const countrySelect = document.getElementById('country');
+const skillCategorySelect = document.getElementById('skillCategory');
+const specificSkillsSection = document.getElementById('specificSkillsSection');
+const skillsContainer = document.getElementById('skillCheckboxes');
+
+// Initialize lucide icons
+if (window.lucide) lucide.createIcons();
+
+// Skill categories
+const skillCategories = {
+  Technical: ['JavaScript', 'Python', 'React', 'Node.js', 'AI/ML', 'Data Science'],
+  Design: ['UI/UX Design', 'Graphic Design', 'Web Design', '3D Modeling'],
+  Writing: ['Content Writing', 'Technical Writing', 'SEO Writing'],
+  Marketing: ['Digital Marketing', 'Social Media', 'Email Marketing'],
+  Business: ['Project Management', 'Business Analysis', 'Finance']
+};
+
+// Country list (hardcoded to avoid CORS issues with external APIs)
+const countries = [
+  "Afghanistan","Albania","Algeria","Andorra","Angola","Argentina","Armenia","Australia","Austria","Azerbaijan",
+  "Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia",
+  "Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi",
+  "Cambodia","Cameroon","Canada","Cape Verde","Central African Republic","Chad","Chile","China","Colombia","Comoros",
+  "Congo","Costa Rica","Croatia","Cuba","Cyprus","Czech Republic",
+  "Denmark","Djibouti","Dominica","Dominican Republic",
+  "Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia",
+  "Fiji","Finland","France",
+  "Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
+  "Haiti","Honduras","Hungary",
+  "Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Ivory Coast",
+  "Jamaica","Japan","Jordan",
+  "Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan",
+  "Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg",
+  "Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Mauritania","Mauritius","Mexico","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique",
+  "Myanmar","Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway",
+  "Oman",
+  "Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal",
+  "Qatar",
+  "Romania","Russia","Rwanda",
+  "Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria",
+  "Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu",
+  "Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
+  "Vanuatu","Vatican City","Venezuela","Vietnam",
+  "Yemen",
+  "Zambia","Zimbabwe"
+];
+
+countries.forEach(c => {
+  const opt = document.createElement('option');
+  opt.value = c;
+  opt.textContent = c;
+  countrySelect.appendChild(opt);
+});
+
+// Password strength logic
+passwordInput.addEventListener('input', () => {
+  document.getElementById('passwordStrength').style.display = 'block';
+  const val = passwordInput.value;
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[a-z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+
+  const labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+  const colors = ['red', 'orangered', 'orange', 'blue', 'green'];
+  passwordStrengthText.textContent = labels[score];
+  passwordStrengthBar.style.width = `${(score / 5) * 100}%`;
+  passwordStrengthBar.style.backgroundColor = colors[score];
+});
+
+// Auto username generation
+firstNameInput.addEventListener('input', () => {
+  if (!usernameInput.value) {
+    usernameInput.value = firstNameInput.value.toLowerCase().replace(/\s+/g, '');
+  }
+});
+
+// Skill category logic
+skillCategorySelect.addEventListener('change', e => {
+  const category = e.target.value;
+  skillsContainer.innerHTML = '';
+  if (skillCategories[category]) {
+    specificSkillsSection.style.display = 'block';
+    skillCategories[category].forEach(skill => {
+      const div = document.createElement('div');
+      div.innerHTML = `<label><input type="checkbox" name="specificSkills" value="${skill}"> ${skill}</label>`;
+      skillsContainer.appendChild(div);
+    });
+  } else {
+    specificSkillsSection.style.display = 'none';
+  }
+});
+
+// Toggle password visibility
+document.getElementById('togglePassword').addEventListener('click', function() {
+  const isPassword = passwordInput.type === 'password';
+  passwordInput.type = isPassword ? 'text' : 'password';
+  this.innerHTML = isPassword
+    ? '<i data-lucide="eye-off"></i>'
+    : '<i data-lucide="eye"></i>';
+  if (window.lucide) lucide.createIcons();
+});
+document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+  const isPassword = confirmPasswordInput.type === 'password';
+  confirmPasswordInput.type = isPassword ? 'text' : 'password';
+  this.innerHTML = isPassword
+    ? '<i data-lucide="eye-off"></i>'
+    : '<i data-lucide="eye"></i>';
+  if (window.lucide) lucide.createIcons();
+});
+
+// Form submission with fetch to backend
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  passwordMismatch.style.display = 'none';
+
+  if (passwordInput.value !== confirmPasswordInput.value) {
+    passwordMismatch.style.display = 'block';
+    return;
+  }
+
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+  data.specificSkills = formData.getAll('specificSkills');
+
+  // Basic validation
+  if (!data.firstName || !data.lastName || !data.email || !data.password || !data.country || !data.experience || !data.availableHours) {
+    alert('Please fill all required fields.');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim(),
+        email: data.email.trim(),
+        password: data.password,
+        fieldOfWork: data.skillCategory || 'General',
+        hoursAvailable: Number(data.availableHours),
+        experienceLevel: data.experience,
+        country: data.country,
+        city: data.city || '',
+        specificSkills: data.specificSkills || [],
+        role: 'freelancer'
+      })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert(result.message);
+      setTimeout(() => {
+        window.location.href = '/login.html';
+      }, 1500);
+    } else {
+      alert('Error: ' + result.message);
+    }
+  } catch (err) {
+    console.error('Error sending data:', err);
+    alert('Server error. Please try again later.');
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select Role - Innobridge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl">
+    <h2 class="text-2xl font-bold text-[#0d9488] text-center mb-6">Join Innobridge</h2>
+    <p class="text-gray-600 text-center mb-8">Please select your category:</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <!-- Freelancer Card -->
+      <label class="cursor-pointer border rounded-xl p-6 shadow-sm hover:shadow-md transition-all flex items-start gap-4 bg-white group">
+        <input type="radio" name="userRole" value="freelancer" class="w-6 h-6 mt-1 text-[#0d9488] focus:ring-[#0d9488]" />
+        <div>
+          <h3 class="text-lg font-semibold text-[#0d9488] group-hover:underline">I'm a Freelancer</h3>
+          <p class="text-sm text-gray-600 mt-1">Find projects, showcase skills, and earn on your terms.</p>
+        </div>
+      </label>
+
+      <!-- Client Card -->
+      <label class="cursor-pointer border rounded-xl p-6 shadow-sm hover:shadow-md transition-all flex items-start gap-4 bg-white group">
+        <input type="radio" name="userRole" value="client" class="w-6 h-6 mt-1 text-[#0d9488] focus:ring-[#0d9488]" />
+        <div>
+          <h3 class="text-lg font-semibold text-[#0d9488] group-hover:underline">I'm a Client</h3>
+          <p class="text-sm text-gray-600 mt-1">Post projects and hire talented experts with ease.</p>
+        </div>
+      </label>
+    </div>
+
+    <!-- Confirmation Checkbox -->
+    <div class="flex items-center space-x-2 mb-6">
+      <input type="checkbox" id="confirm" class="w-5 h-5 text-[#0d9488] focus:ring-[#0d9488]">
+      <label for="confirm" class="text-sm text-gray-700">I confirm my selected category</label>
+    </div>
+
+    <!-- Proceed Button -->
+    <button
+      id="proceedBtn"
+      disabled
+      class="w-full bg-[#0d9488] hover:bg-[#0c8279] text-white font-semibold py-3 rounded-xl transition disabled:opacity-50"
+    >
+      Proceed
+    </button>
+  </div>
+
+  <script>
+    const proceedBtn = document.getElementById('proceedBtn');
+    const confirmCheckbox = document.getElementById('confirm');
+
+    confirmCheckbox.addEventListener('change', () => {
+      proceedBtn.disabled = !confirmCheckbox.checked;
+    });
+
+    proceedBtn.addEventListener('click', () => {
+      const selectedRole = document.querySelector('input[name="userRole"]:checked');
+      if (!selectedRole) {
+        alert('Please select a category before proceeding.');
+        return;
+      }
+
+      const role = selectedRole.value;
+      if (role === 'freelancer') {
+        window.location.href = 'signup-freelancer.html';
+      } else if (role === 'client') {
+        window.location.href = 'signup-client.html';
+      }
+    });
+  </script>
+
+</body>
+</html>

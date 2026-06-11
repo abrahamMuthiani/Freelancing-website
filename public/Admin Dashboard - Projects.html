@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Projects - Innobridge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-green-600 mb-4 md:mb-0">Projects</h1>
+    <select id="filterStatus" class="border rounded px-3 py-2 shadow hover:border-green-500 transition">
+      <option value="">All Projects</option>
+      <option value="Open">Open</option>
+      <option value="Disapproved">Disapproved</option>
+      <option value="Reported">Reported</option>
+      <option value="Flagged">Flagged</option>
+    </select>
+  </div>
+
+  <!-- Projects Container -->
+  <div id="projectsContainer" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <!-- Project cards will be injected here -->
+  </div>
+
+  <script>
+    const projectsContainer = document.getElementById('projectsContainer');
+    const filterStatus = document.getElementById('filterStatus');
+
+    // Format date nicely
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    // Fetch and display projects
+    async function loadProjects(status = '') {
+      try {
+        const res = await fetch(`http://localhost:3000/api/projects${status ? '?status=' + status : ''}`);
+        const projects = await res.json();
+
+        if (!projects.length) {
+          projectsContainer.innerHTML = `<p class="col-span-full text-center text-gray-500">No projects found.</p>`;
+          return;
+        }
+
+        projectsContainer.innerHTML = projects.map(project => `
+          <div class="bg-white rounded-lg shadow hover:shadow-lg transition p-5 flex flex-col justify-between">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-800 mb-2">${project.title}</h2>
+              <p class="text-gray-600 mb-3 line-clamp-3">${project.description}</p>
+              <div class="flex flex-wrap items-center gap-2 text-sm mb-3">
+                <span class="px-2 py-1 rounded-full text-white font-medium
+                  ${project.status === 'Open' ? 'bg-green-500' :
+                    project.status === 'Disapproved' ? 'bg-red-500' :
+                    project.status === 'Reported' ? 'bg-yellow-500 text-black' :
+                    project.status === 'Flagged' ? 'bg-gray-500 text-white' : 'bg-gray-300 text-gray-700'}">
+                  ${project.status}
+                </span>
+                <span class="text-gray-500">Posted by: ${project.postedBy || 'Unknown'}</span>
+                <span class="text-gray-400">•</span>
+                <span class="text-gray-500">Date: ${formatDate(project.createdAt)}</span>
+              </div>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button onclick="toggleFlag('${project._id}', '${project.status}')" 
+                class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition">
+                ${project.status === 'Flagged' ? 'Unflag' : 'Flag'}
+              </button>
+              <button onclick="deleteProject('${project._id}')" 
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+                Delete
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.error(err);
+        projectsContainer.innerHTML = `<p class="col-span-full text-center text-red-500">Error loading projects.</p>`;
+      }
+    }
+
+    // Delete a project
+    async function deleteProject(projectId) {
+      if (!confirm('Are you sure you want to delete this project?')) return;
+      try {
+        const res = await fetch(`http://localhost:3000/api/projects/${projectId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+          alert(data.message);
+          loadProjects(filterStatus.value);
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error deleting project.');
+      }
+    }
+
+    // Toggle flag status
+    async function toggleFlag(projectId, currentStatus) {
+      try {
+        const newStatus = currentStatus === 'Flagged' ? 'Open' : 'Flagged';
+        const res = await fetch(`http://localhost:3000/api/projects/${projectId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          loadProjects(filterStatus.value);
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error updating project status.');
+      }
+    }
+
+    // Filter projects
+    filterStatus.addEventListener('change', () => loadProjects(filterStatus.value));
+
+    // Initial load
+    loadProjects();
+  </script>
+
+</body>
+</html>

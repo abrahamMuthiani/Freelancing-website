@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innobridge - Submit Proposal</title>
+    <meta name="description" content="Submit your proposal for freelance projects on Innobridge">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 1rem 1.5rem;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            max-width: 350px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .toast.warning {
+            border-left: 4px solid #f59e0b;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .file-upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-area:hover {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #2563eb;
+            background-color: #dbeafe;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 md:px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-600 text-white font-bold rounded-full w-10 h-10 flex items-center justify-center text-xl">
+                        I
+                    </div>
+                    <div>
+                        <div class="text-xl font-bold text-gray-800">Innobridge</div>
+                        <div class="text-xs text-gray-500">Project Request</div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center gap-6">
+                    <a href="user-dashboard.html" class="text-gray-600 hover:text-blue-600 transition">Dashboard</a>
+                    <a href="available-project.html" class="text-gray-600 hover:text-blue-600 transition">Available Projects</a>
+                    <a href="project-request.html" class="text-blue-600 font-semibold">My Requests</a>
+                </nav>
+
+                <!-- Right side -->
+                <div class="flex items-center gap-3">
+                    <button id="notificationBtn" class="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+                        <i class="ri-notification-3-line text-xl"></i>
+                        <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5">0</span>
+                    </button>
+                    <button onclick="window.location.href='user-dashboard.html'" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+                        <i class="ri-user-line text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 md:px-6 py-6 md:py-8 max-w-5xl">
+        <!-- Page Title -->
+        <div class="mb-6">
+            <div class="flex items-center gap-3 mb-2">
+                <button onclick="window.history.back()" class="p-2 hover:bg-gray-100 rounded-lg transition">
+                    <i class="ri-arrow-left-line text-xl"></i>
+                </button>
+                <h1 class="text-3xl font-bold text-gray-800">Submit Your Proposal</h1>
+            </div>
+            <p class="text-gray-600 ml-12">Review the project details and submit your best proposal</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="flex flex-col items-center justify-center py-16">
+            <div class="loading-spinner mb-4"></div>
+            <p class="text-gray-600">Loading project details...</p>
+        </div>
+
+        <!-- Content Wrapper -->
+        <div id="contentWrapper" class="hidden space-y-6">
+            <!-- Project Details Card -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h2 id="project-title" class="text-2xl font-bold mb-2">Loading...</h2>
+                            <span id="project-status" class="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold">
+                                Loading...
+                            </span>
+                        </div>
+                        <button onclick="toggleProjectDetails()" class="p-2 hover:bg-white/10 rounded-lg transition">
+                            <i id="toggleIcon" class="ri-arrow-down-s-line text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="projectDetailsContent" class="p-6">
+                    <!-- Description -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            <i class="ri-file-text-line text-blue-600"></i>
+                            Project Description
+                        </h3>
+                        <p id="project-description" class="text-gray-700 leading-relaxed">Fetching project details...</p>
+                    </div>
+
+                    <!-- Project Details Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="bg-green-100 text-green-600 rounded-full w-10 h-10 flex items-center justify-center">
+                                    <i class="ri-money-dollar-circle-line text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-600">Budget</p>
+                                    <p id="project-budget" class="text-xl font-bold text-green-600">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="bg-blue-100 text-blue-600 rounded-full w-10 h-10 flex items-center justify-center">
+                                    <i class="ri-calendar-line text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-600">Deadline</p>
+                                    <p id="project-deadline" class="text-lg font-bold text-blue-600">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="bg-purple-100 text-purple-600 rounded-full w-10 h-10 flex items-center justify-center">
+                                    <i class="ri-user-line text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-600">Posted by</p>
+                                    <p id="project-client" class="text-lg font-bold text-purple-600">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills Section -->
+                    <div id="skillsSection" class="mt-6 hidden">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            <i class="ri-code-box-line text-blue-600"></i>
+                            Required Skills
+                        </h3>
+                        <div id="skillsList" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proposal Form Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Your Proposal</h2>
+                    <p class="text-gray-600">Tell the client why you're the perfect fit for this project</p>
+                </div>
+
+                <form id="proposalForm" class="space-y-6">
+                    <!-- Proposal / Cover Letter -->
+                    <div>
+                        <label for="proposal" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Cover Letter *
+                            <span class="text-gray-400 font-normal">(Minimum 100 characters)</span>
+                        </label>
+                        <textarea 
+                            id="proposal" 
+                            rows="8"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                            placeholder="Describe your approach, relevant experience, and why you're the best choice for this project..."
+                            required
+                        ></textarea>
+                        <div class="mt-2 flex items-center justify-between">
+                            <span id="charCount" class="text-sm text-gray-500">0 / 100 characters</span>
+                            <span id="charWarning" class="text-sm text-red-500 hidden">Minimum 100 characters required</span>
+                        </div>
+                    </div>
+
+                    <!-- Bid Amount -->
+                    <div>
+                        <label for="bidAmount" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Your Bid Amount *
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">$</span>
+                            <input 
+                                type="number" 
+                                id="bidAmount" 
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="5000"
+                                min="1"
+                                required
+                            >
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Enter your proposed budget for this project</p>
+                    </div>
+
+                    <!-- Completion Time -->
+                    <div>
+                        <label for="completionTime" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Estimated Completion Time *
+                        </label>
+                        <select 
+                            id="completionTime" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            required
+                        >
+                            <option value="">Select timeframe</option>
+                            <option value="1-week">1 Week</option>
+                            <option value="2-weeks">2 Weeks</option>
+                            <option value="1-month">1 Month</option>
+                            <option value="2-months">2 Months</option>
+                            <option value="3-months">3 Months</option>
+                            <option value="custom">Custom (specify in proposal)</option>
+                        </select>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Supporting Documents (Optional)
+                        </label>
+                        <div id="fileUploadArea" class="file-upload-area">
+                            <i class="ri-upload-cloud-2-line text-4xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600 font-medium mb-1">Click to upload or drag and drop</p>
+                            <p class="text-sm text-gray-500">PDF, DOC, DOCX, or images up to 10MB</p>
+                            <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" hidden multiple>
+                        </div>
+                        
+                        <!-- File Preview -->
+                        <div id="filePreview" class="mt-4 hidden space-y-2"></div>
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="termsCheckbox" class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" required>
+                        <label for="termsCheckbox" class="text-sm text-gray-600">
+                            I agree to the <a href="#" class="text-blue-600 hover:underline">terms and conditions</a> and confirm that all information provided is accurate.
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex gap-3">
+                        <button 
+                            type="button"
+                            onclick="window.history.back()"
+                            class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            id="submitBtn"
+                            class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-2"
+                        >
+                            <i id="submitIcon" class="ri-send-plane-line"></i>
+                            <span id="submitText">Submit Proposal</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div class="flex items-start gap-3">
+            <i id="toastIcon" class="text-2xl"></i>
+            <div class="flex-1">
+                <p id="toastTitle" class="font-semibold text-gray-800"></p>
+                <p id="toastMessage" class="text-sm text-gray-600 mt-1"></p>
+            </div>
+            <button onclick="hideToast()" class="text-gray-400 hover:text-gray-600">
+                <i class="ri-close-line text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        let currentProject = null;
+        let currentUser = null;
+        let uploadedFiles = [];
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            currentUser = getUserFromStorage();
+            
+            if (!currentUser || !currentUser._id) {
+                showToast('Please log in to submit a proposal', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+
+            const projectId = localStorage.getItem('selectedProjectId');
+            
+            console.log('Retrieved projectId from localStorage:', projectId);
+            console.log('📦 ProjectId type:', typeof projectId);
+            
+            if (!projectId || projectId === 'undefined' || projectId === 'null') {
+                showToast('No project selected. Redirecting...', 'error');
+                setTimeout(() => window.location.href = 'available-project.html', 2000);
+                return;
+            }
+
+            await loadProjectDetails(projectId);
+            setupEventListeners();
+        });
+
+        // Get user from localStorage
+        function getUserFromStorage() {
+            try {
+                const userStr = localStorage.getItem('user');
+                return userStr ? JSON.parse(userStr) : null;
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                return null;
+            }
+        }
+
+        // Load project details
+        async function loadProjectDetails(projectId) {
+            try {
+                console.log(' Fetching project with ID:', projectId);
+                console.log('🌐 Full URL:', `${API_BASE_URL}/projects/${projectId}`);
+                
+                const response = await fetch(`${API_BASE_URL}/projects/${projectId}`);
+                
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error(' Error response:', errorData);
+                    throw new Error(errorData.message || `Failed to fetch project (Status: ${response.status})`);
+                }
+
+                currentProject = await response.json();
+                console.log(' Project loaded successfully:', currentProject);
+
+                // Update UI
+                document.getElementById('project-title').textContent = currentProject.title || 'Untitled Project';
+                document.getElementById('project-status').textContent = currentProject.status || 'Open';
+                document.getElementById('project-description').textContent = currentProject.description || 'No description provided';
+                document.getElementById('project-budget').textContent = currentProject.budget 
+                    ? `${currentProject.currency || '$'}${formatNumber(currentProject.budget)}` 
+                    : 'Not specified';
+                document.getElementById('project-deadline').textContent = currentProject.deadline
+                    ? formatDate(currentProject.deadline)
+                    : 'Not specified';
+                document.getElementById('project-client').textContent = currentProject.createdBy || 'Anonymous';
+
+                // Show skills if available
+                if (currentProject.specificSkills && currentProject.specificSkills.length > 0) {
+                    const skillsSection = document.getElementById('skillsSection');
+                    const skillsList = document.getElementById('skillsList');
+                    
+                    skillsList.innerHTML = currentProject.specificSkills.map(skill => 
+                        `<span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">${escapeHtml(skill)}</span>`
+                    ).join('');
+                    
+                    skillsSection.classList.remove('hidden');
+                }
+
+                // Show content
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('contentWrapper').classList.remove('hidden');
+
+            } catch (error) {
+                console.error(' Error loading project:', error);
+                
+                // Show detailed error message
+                const loadingState = document.getElementById('loadingState');
+                loadingState.innerHTML = `
+                    <div class="bg-white rounded-lg shadow-lg p-8 max-w-md mx-auto text-center">
+                        <i class="ri-error-warning-line text-6xl text-red-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">Failed to Load Project</h3>
+                        <p class="text-gray-600 mb-4">${escapeHtml(error.message)}</p>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4 text-left">
+                            <p class="text-sm font-semibold text-gray-700 mb-2">🐛 Debug Information:</p>
+                            <ul class="text-xs text-gray-600 space-y-1">
+                                <li><strong>Project ID:</strong> ${localStorage.getItem('selectedProjectId') || 'Not found'}</li>
+                                <li><strong>API Endpoint:</strong> ${API_BASE_URL}/projects/${localStorage.getItem('selectedProjectId')}</li>
+                                <li><strong>Error:</strong> ${error.message}</li>
+                            </ul>
+                        </div>
+                        
+                        <p class="text-sm text-gray-500 mb-4">Check the browser console (F12) for more details</p>
+                        
+                        <div class="flex gap-3 justify-center">
+                            <button onclick="window.location.href='available-project.html'" 
+                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                Browse Projects
+                            </button>
+                            <button onclick="location.reload()" 
+                                    class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                                Retry
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                showToast('Failed to load project details', 'error');
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Form submission
+            document.getElementById('proposalForm').addEventListener('submit', handleSubmit);
+
+            // Character counter
+            const proposalInput = document.getElementById('proposal');
+            proposalInput.addEventListener('input', updateCharCount);
+
+            // File upload
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            fileUploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop
+            fileUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.add('dragover');
+            });
+
+            fileUploadArea.addEventListener('dragleave', () => {
+                fileUploadArea.classList.remove('dragover');
+            });
+
+            fileUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.remove('dragover');
+                handleFileSelect({ target: { files: e.dataTransfer.files } });
+            });
+        }
+
+        // Update character count
+        function updateCharCount() {
+            const proposal = document.getElementById('proposal').value;
+            const charCount = document.getElementById('charCount');
+            const charWarning = document.getElementById('charWarning');
+            
+            charCount.textContent = `${proposal.length} / 100 characters`;
+            
+            if (proposal.length < 100) {
+                charWarning.classList.remove('hidden');
+                charCount.classList.add('text-red-500');
+            } else {
+                charWarning.classList.add('hidden');
+                charCount.classList.remove('text-red-500');
+            }
+        }
+
+        // Handle file selection
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            const filePreview = document.getElementById('filePreview');
+            
+            files.forEach(file => {
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast(`File ${file.name} is too large (max 10MB)`, 'error');
+                    return;
+                }
+                
+                uploadedFiles.push(file);
+                
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+                fileItem.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="ri-file-line text-blue-600 text-xl"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">${escapeHtml(file.name)}</p>
+                            <p class="text-xs text-gray-500">${formatFileSize(file.size)}</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeFile('${file.name}')" class="text-red-500 hover:text-red-700">
+                        <i class="ri-close-line text-xl"></i>
+                    </button>
+                `;
+                
+                filePreview.appendChild(fileItem);
+            });
+            
+            if (uploadedFiles.length > 0) {
+                filePreview.classList.remove('hidden');
+            }
+        }
+
+        // Remove file
+        function removeFile(fileName) {
+            uploadedFiles = uploadedFiles.filter(f => f.name !== fileName);
+            
+            const filePreview = document.getElementById('filePreview');
+            const items = Array.from(filePreview.children);
+            
+            items.forEach(item => {
+                if (item.textContent.includes(fileName)) {
+                    item.remove();
+                }
+            });
+            
+            if (uploadedFiles.length === 0) {
+                filePreview.classList.add('hidden');
+            }
+        }
+
+        // Handle form submission
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const proposal = document.getElementById('proposal').value.trim();
+            const bidAmount = document.getElementById('bidAmount').value;
+            const completionTime = document.getElementById('completionTime').value;
+            const termsAccepted = document.getElementById('termsCheckbox').checked;
+
+            // Validation
+            if (proposal.length < 100) {
+                showToast('Cover letter must be at least 100 characters', 'error');
+                return;
+            }
+
+            if (!bidAmount || bidAmount <= 0) {
+                showToast('Please enter a valid bid amount', 'error');
+                return;
+            }
+
+            if (!completionTime) {
+                showToast('Please select a completion timeframe', 'error');
+                return;
+            }
+
+            if (!termsAccepted) {
+                showToast('Please accept the terms and conditions', 'error');
+                return;
+            }
+
+            // Disable button
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitIcon = document.getElementById('submitIcon');
+            
+            submitBtn.disabled = true;
+            submitText.textContent = 'Submitting...';
+            submitIcon.className = 'ri-loader-4-line animate-spin';
+
+            try {
+                const proposalData = {
+                    projectId: currentProject._id,
+                    freelancerId: currentUser._id,
+                    coverLetter: proposal,
+                    bidAmount: parseFloat(bidAmount),
+                    estimatedTime: completionTime,
+                    status: 'pending'
+                };
+
+                console.log('📤 Submitting proposal:', proposalData);
+
+                const response = await fetch(`${API_BASE_URL}/proposals`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(proposalData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to submit proposal');
+                }
+
+                const result = await response.json();
+                console.log(' Proposal submitted:', result);
+                
+                showToast('Proposal submitted successfully!', 'success');
+                
+                // Clear form and redirect after delay
+                setTimeout(() => {
+                    localStorage.removeItem('selectedProjectId');
+                    window.location.href = 'user-dashboard.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error(' Error submitting proposal:', error);
+                showToast(error.message || 'Failed to submit proposal', 'error');
+                
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitText.textContent = 'Submit Proposal';
+                submitIcon.className = 'ri-send-plane-line';
+            }
+        }
+
+        // Toggle project details
+        function toggleProjectDetails() {
+            const content = document.getElementById('projectDetailsContent');
+            const icon = document.getElementById('toggleIcon');
+            
+            content.classList.toggle('hidden');
+            icon.classList.toggle('ri-arrow-down-s-line');
+            icon.classList.toggle('ri-arrow-up-s-line');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // Set icon and title based on type
+            if (type === 'success') {
+                toastIcon.className = 'ri-check-line text-2xl text-green-600';
+                toastTitle.textContent = 'Success!';
+                toast.className = 'toast success show';
+            } else if (type === 'error') {
+                toastIcon.className = 'ri-error-warning-line text-2xl text-red-600';
+                toastTitle.textContent ='Error!';
+                toast.className = 'toast error show';
+            } else if (type === 'warning') {
+                toastIcon.className = 'ri-alert-line text-2xl text-yellow-600';
+                toastTitle.textContent = 'Warning';
+                toast.className = 'toast warning show';
+            } else {
+                toastIcon.className = 'ri-information-line text-2xl text-blue-600';
+                toastTitle.textContent = 'Info';
+                toast.className = 'toast show';
+            }
+            
+            toastMessage.textContent = message;
+            
+            // Auto-hide after 5 seconds
+            setTimeout(hideToast, 5000);
+        }
+
+        // Hide toast
+        function hideToast() {
+            document.getElementById('toast').classList.remove('show');
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US').format(num);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+    </script>
+</body>
+</html>

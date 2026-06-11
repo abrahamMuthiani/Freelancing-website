@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InnoBridge - Under Construction</title>
+    <meta name="description" content="InnoBridge freelancer platform is under construction. Connecting innovation with opportunity!">
+    <meta name="author" content="InnoBridge Team">
+    <link rel="stylesheet" href="page-not-available.css">
+
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-dot dot1"></div>
+        <div class="floating-dot dot2"></div>
+        <div class="floating-dot dot3"></div>
+        <div class="floating-dot dot4"></div>
+        
+        <div class="floating-tool tool1">🔧</div>
+        <div class="floating-tool tool2">⚒️</div>
+        <div class="floating-tool tool3">🏗️</div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <!-- Brand -->
+            <div class="brand">
+                <h1>Inno<span class="bridge-text">Bridge</span></h1>
+                <p>Connecting Innovation with Opportunity</p>
+            </div>
+
+            <!-- Interactive Bridge -->
+            <div class="bridge-container" onclick="handleBridgeClick(event)">
+                <div class="bridge">
+                    <div class="bridge-deck">
+                        <div class="missing-section"></div>
+                        <div class="plank plank1" id="plank1"></div>
+                        <div class="plank plank2" id="plank2"></div>
+                        <div class="plank plank3" id="plank3"></div>
+                        <div class="plank plank4" id="plank4"></div>
+                    </div>
+                    <div class="bridge-support support-left"></div>
+                    <div class="bridge-support support-right"></div>
+                    <div class="warning-sign">⚠️</div>
+                    <div class="construction-worker">👷‍♂️</div>
+                </div>
+                <div class="river">🌊 River of Innovation 🌊</div>
+                <div class="click-message" id="click-message">
+                    <div>Click the bridge to help us build! 🔨</div>
+                    <div class="click-count" id="click-count"></div>
+                </div>
+            </div>
+
+            <!-- Main title -->
+            <h2 class="main-title">🚧 Under Construction 🚧</h2>
+
+            <!-- Building status -->
+            <div class="status-card">
+                <p class="status-text">Our team of freelance engineers is building the bridge to your success!</p>
+                <div class="building-status" id="building-status">Building...</div>
+                
+                <!-- Progress bar -->
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <div class="progress-text">85% Complete - Almost ready to connect!</div>
+                </div>
+            </div>
+
+            <!-- Countdown timer -->
+            <div class="countdown-card">
+                <h3 class="countdown-title"> Launch Countdown</h3>
+                <div class="countdown-grid">
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="days">30</div>
+                        <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="hours">12</div>
+                        <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="minutes">30</div>
+                        <div class="countdown-label">Minutes</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="seconds">45</div>
+                        <div class="countdown-label">Seconds</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fun messages -->
+            <div class="fun-messages">
+                <p>💻 Coding the future, one line at a time</p>
+                <p>🎨 Designing bridges between ideas and reality</p>
+                <p>⚡ Connecting talented freelancers with amazing projects</p>
+                <p>🌉 Building stronger connections than ever before!</p>
+            </div>
+
+            <!-- Contact info -->
+            <div class="contact-card">
+                <p class="contact-text">
+                    Ready to build something amazing together?
+                    <br><br>
+                    <a href="mailto:hello@innobridge.com" class="contact-link">hello@innobridge.com</a>
+                </p>
+                <div class="social-links">
+                    <span>🔗 LinkedIn</span>
+                    <span>🐦 Twitter</span>
+                    <span>📱 Discord</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let bridgeClicks = 0;
+        let dotCount = 0;
+
+        // Animated dots for "Building" text
+        const buildingElement = document.getElementById('building-status');
+        
+        function updateBuildingText() {
+            dotCount = (dotCount + 1) % 4;
+            const dots = '.'.repeat(dotCount);
+            const spaces = '\u00A0'.repeat(3 - dotCount); // Non-breaking spaces
+            buildingElement.textContent = 'Building' + dots + spaces;
+        }
+
+        setInterval(updateBuildingText, 500);
+
+        // Countdown timer
+        let timeLeft = {
+            days: 30,
+            hours: 12,
+            minutes: 30,
+            seconds: 45
+        };
+
+        function updateCountdown() {
+            if (timeLeft.seconds > 0) {
+                timeLeft.seconds--;
+            } else if (timeLeft.minutes > 0) {
+                timeLeft.minutes--;
+                timeLeft.seconds = 59;
+            } else if (timeLeft.hours > 0) {
+                timeLeft.hours--;
+                timeLeft.minutes = 59;
+                timeLeft.seconds = 59;
+            } else if (timeLeft.days > 0) {
+                timeLeft.days--;
+                timeLeft.hours = 23;
+                timeLeft.minutes = 59;
+                timeLeft.seconds = 59;
+            }
+
+            document.getElementById('days').textContent = timeLeft.days;
+            document.getElementById('hours').textContent = timeLeft.hours;
+            document.getElementById('minutes').textContent = timeLeft.minutes;
+            document.getElementById('seconds').textContent = timeLeft.seconds;
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        // Bridge click handler
+        function handleBridgeClick(event) {
+            bridgeClicks++;
+            updateBridgeState();
+            createSparkleEffect(event);
+        }
+
+        function updateBridgeState() {
+            const messageContainer = document.getElementById('click-message');
+            const messageDiv = messageContainer.querySelector('div:first-child');
+            const countDiv = document.getElementById('click-count');
+            
+            // Show planks based on click count
+            if (bridgeClicks > 0) document.getElementById('plank1').classList.add('visible');
+            if (bridgeClicks > 3) document.getElementById('plank2').classList.add('visible');
+            if (bridgeClicks > 6) document.getElementById('plank3').classList.add('visible');
+            if (bridgeClicks > 9) document.getElementById('plank4').classList.add('visible');
+            
+            // Update message based on clicks
+            let message = "Click the bridge to help us build! 🔨";
+            if (bridgeClicks >= 3 && bridgeClicks < 6) {
+                message = "Great! Keep clicking to add more planks! 🪵";
+            } else if (bridgeClicks >= 6 && bridgeClicks < 10) {
+                message = "Almost there! The bridge is getting stronger! 💪";
+            } else if (bridgeClicks >= 10) {
+                message = "Amazing! You've helped us build the strongest bridge! 🌉";
+            }
+            
+            messageDiv.textContent = message;
+            if (bridgeClicks > 0) {
+                countDiv.textContent = `Clicks: ${bridgeClicks}`;
+            }
+        }
+
+        // Sparkle effect on bridge click
+        function createSparkleEffect(event) {
+            const sparkleEmojis = ['✨', '⭐', '💫', '🌟', '🔧', '🔨', '⚡', '💎'];
+            const bridge = event.currentTarget.querySelector('.bridge');
+            const rect = bridge.getBoundingClientRect();
+            
+            // Create multiple sparkles
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.textContent = sparkleEmojis[Math.floor(Math.random() * sparkleEmojis.length)];
+                    
+                    // Random position within the bridge
+                    const x = Math.random() * (rect.width - 40) + 20;
+                    const y = Math.random() * (rect.height - 40) + 20;
+                    
+                    sparkle.style.left = x + 'px';
+                    sparkle.style.top = y + 'px';
+                    sparkle.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+                    
+                    bridge.appendChild(sparkle);
+                    
+                    setTimeout(() => {
+                        if (sparkle.parentNode) {
+                            sparkle.parentNode.removeChild(sparkle);
+                        }
+                    }, 1000);
+                }, i * 100);
+            }
+        }
+
+        // Add some fun interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effect to social links
+            const socialLinks = document.querySelectorAll('.social-links span');
+            socialLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px) scale(1.1)';
+                });
+                link.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Add click effect to countdown items
+            const countdownItems = document.querySelectorAll('.countdown-item');
+            countdownItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-5px)';
+                    }, 100);
+                });
+            });
+        });
+
+        // Easter egg: Konami code
+        let konamiCode = [];
+        const konamiSequence = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // Up Up Down Down Left Right Left Right B A
+        
+        document.addEventListener('keydown', function(e) {
+            konamiCode.push(e.keyCode);
+            if (konamiCode.length > konamiSequence.length) {
+                konamiCode.shift();
+            }
+            
+            if (konamiCode.length === konamiSequence.length && 
+                konamiCode.every((code, index) => code === konamiSequence[index])) {
+                // Easter egg activated!
+                document.body.style.animation = 'bounce 0.5s ease-in-out 3';
+                alert('🎉 Easter egg activated! You found the secret code! 🎉');
+                konamiCode = [];
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1001 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innobridge - Payment & Payouts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .payment-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .payment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .payment-card.selected {
+            border-color: #3B82F6;
+            background: linear-gradient(135deg, #EBF8FF 0%, #F0F9FF 100%);
+        }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3B82F6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-blue-600">Innobridge</h1>
+                    <span class="ml-2 text-gray-500">Payment Center</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-wallet mr-1"></i>
+                        Balance: $1,250.00
+                    </div>
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-user-circle text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Tab Navigation -->
+        <div class="mb-8">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button id="depositTab" class="tab-button border-b-2 border-blue-500 py-4 px-1 text-blue-600 font-medium text-sm">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        Deposit Funds
+                    </button>
+                    <button id="withdrawTab" class="tab-button border-b-2 border-transparent py-4 px-1 text-gray-500 hover:text-gray-700 font-medium text-sm">
+                        <i class="fas fa-money-bill-wave mr-2"></i>
+                        Request Payout
+                    </button>
+                    <button id="historyTab" class="tab-button border-b-2 border-transparent py-4 px-1 text-gray-500 hover:text-gray-700 font-medium text-sm">
+                        <i class="fas fa-history mr-2"></i>
+                        Transaction History
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Deposit Section -->
+        <div id="depositSection" class="tab-content">
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Payment Methods -->
+                <div class="lg:col-span-2">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Choose Payment Method</h2>
+                    
+                    <!-- Local Payment Methods -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                            <i class="fas fa-map-marker-alt text-green-600 mr-2"></i>
+                            Local Payment Methods
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <!-- M-Pesa -->
+                            <div class="payment-card bg-white rounded-lg p-6 cursor-pointer" data-method="mpesa">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-mobile-alt text-white text-xl"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h4 class="font-semibold text-gray-900">M-Pesa</h4>
+                                            <p class="text-sm text-gray-500">Safaricom</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-green-600 font-semibold text-sm">Instant</div>
+                                </div>
+                                <p class="text-gray-600 text-sm">Pay securely using your M-Pesa mobile wallet</p>
+                            </div>
+
+                            <!-- Bank Transfer -->
+                            <div class="payment-card bg-white rounded-lg p-6 cursor-pointer" data-method="bank">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-university text-white text-xl"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h4 class="font-semibold text-gray-900">Bank Transfer</h4>
+                                            <p class="text-sm text-gray-500">Local Banks</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-orange-600 font-semibold text-sm">1-2 Days</div>
+                                </div>
+                                <p class="text-gray-600 text-sm">Transfer from your local bank account</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- International Payment Methods -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                            <i class="fas fa-globe text-blue-600 mr-2"></i>
+                            International Payment Methods
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <!-- Credit/Debit Cards -->
+                            <div class="payment-card bg-white rounded-lg p-6 cursor-pointer" data-method="card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-credit-card text-white text-xl"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h4 class="font-semibold text-gray-900">Credit/Debit Card</h4>
+                                            <p class="text-sm text-gray-500">Visa, MasterCard, Amex</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-green-600 font-semibold text-sm">Instant</div>
+                                </div>
+                                <p class="text-gray-600 text-sm">Secure payment with your credit or debit card</p>
+                            </div>
+
+                            <!-- PayPal -->
+                            <div class="payment-card bg-white rounded-lg p-6 cursor-pointer" data-method="paypal">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                                            <i class="fab fa-paypal text-white text-xl"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h4 class="font-semibold text-gray-900">PayPal</h4>
+                                            <p class="text-sm text-gray-500">Digital Wallet</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-green-600 font-semibold text-sm">Instant</div>
+                                </div>
+                                <p class="text-gray-600 text-sm">Pay with your PayPal account or linked cards</p>
+                            </div>
+
+                            <!-- Stripe -->
+                            <div class="payment-card bg-white rounded-lg p-6 cursor-pointer" data-method="stripe">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-lock text-white text-xl"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h4 class="font-semibold text-gray-900">Stripe</h4>
+                                            <p class="text-sm text-gray-500">Secure Gateway</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-green-600 font-semibold text-sm">Instant</div>
+                                </div>
+                                <p class="text-gray-600 text-sm">Advanced security with international support</p>
+                            </div>
+
+                            <!-- Apple/Google Pay -->
+                            <div class="payment-card bg-white rounded-lg p-6 cursor-pointer" data-method="digital">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-mobile-alt text-white text-xl"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h4 class="font-semibold text-gray-900">Digital Wallets</h4>
+                                            <p class="text-sm text-gray-500">Apple Pay, Google Pay</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-green-600 font-semibold text-sm">Instant</div>
+                                </div>
+                                <p class="text-gray-600 text-sm">One-touch payments with biometric security</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Form -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-lg p-6 sticky top-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Payment Details</h3>
+                        
+                        <form id="paymentForm">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                    <input type="number" id="amount" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00" min="10" step="0.01" required>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Minimum deposit: $10.00</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                                <select id="currency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="USD">USD - US Dollar</option>
+                                    <option value="KES">KES - Kenyan Shilling</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="GBP">GBP - British Pound</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Purpose</label>
+                                <select id="purpose" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="project">Fund Project</option>
+                                    <option value="milestone">Milestone Payment</option>
+                                    <option value="wallet">Top-up Wallet</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <!-- Payment Method Specific Fields -->
+                            <div id="mpesaFields" class="payment-fields hidden mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">M-Pesa Phone Number</label>
+                                <input type="tel" id="mpesaPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="254XXXXXXXXX">
+                            </div>
+
+                            <div id="cardFields" class="payment-fields hidden mb-4">
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
+                                    <input type="text" id="cardNumber" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="1234 5678 9012 3456">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Expiry</label>
+                                        <input type="text" id="cardExpiry" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="MM/YY">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">CVV</label>
+                                        <input type="text" id="cardCvv" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="123">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Transaction Summary -->
+                            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                <h4 class="font-medium text-gray-900 mb-3">Transaction Summary</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Amount:</span>
+                                        <span id="summaryAmount">$0.00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Processing Fee:</span>
+                                        <span id="summaryFee">$0.00</span>
+                                    </div>
+                                    <div class="border-t pt-2 flex justify-between font-semibold">
+                                        <span>Total:</span>
+                                        <span id="summaryTotal">$0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="payButton" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                <span id="payButtonText">Select Payment Method</span>
+                                <div id="payButtonLoader" class="loading-spinner mx-auto hidden"></div>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Withdrawal Section -->
+        <div id="withdrawSection" class="tab-content hidden">
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Request Payout</h2>
+                    
+                    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Available Balance</h3>
+                                <p class="text-3xl font-bold text-green-600">$1,250.00</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-500">Minimum withdrawal</p>
+                                <p class="text-lg font-semibold text-gray-900">$50.00</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-yellow-600 mt-1 mr-3"></i>
+                                <div>
+                                    <h4 class="font-medium text-yellow-800">Payout Information</h4>
+                                    <p class="text-sm text-yellow-700 mt-1">Withdrawals are processed within 1-3 business days. M-Pesa payouts are instant during business hours.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Withdrawal Methods -->
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Choose Withdrawal Method</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="payment-card bg-white rounded-lg p-6 cursor-pointer" data-method="mpesa-out">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-mobile-alt text-white text-xl"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h4 class="font-semibold text-gray-900">M-Pesa</h4>
+                                        <p class="text-sm text-gray-500">Instant payout</p>
+                                    </div>
+                                </div>
+                                <div class="text-green-600 font-semibold text-sm">2.5% fee</div>
+                            </div>
+                            <p class="text-gray-600 text-sm">Receive funds instantly to your M-Pesa account</p>
+                        </div>
+
+                        <div class="payment-card bg-white rounded-lg p-6 cursor-pointer" data-method="paypal-out">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-paypal text-white text-xl"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h4 class="font-semibold text-gray-900">PayPal</h4>
+                                        <p class="text-sm text-gray-500">1-2 business days</p>
+                                    </div>
+                                </div>
+                                <div class="text-blue-600 font-semibold text-sm">3.5% fee</div>
+                            </div>
+                            <p class="text-gray-600 text-sm">Transfer to your PayPal account</p>
+                        </div>
+
+                        <div class="payment-card bg-white rounded-lg p-6 cursor-pointer" data-method="bank-out">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-university text-white text-xl"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h4 class="font-semibold text-gray-900">Bank Transfer</h4>
+                                        <p class="text-sm text-gray-500">2-3 business days</p>
+                                    </div>
+                                </div>
+                                <div class="text-gray-600 font-semibold text-sm">$2.50 fee</div>
+                            </div>
+                            <p class="text-gray-600 text-sm">Direct transfer to your bank account</p>
+                        </div>
+
+                        <div class="payment-card bg-white rounded-lg p-6 cursor-pointer" data-method="crypto-out">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-bitcoin text-white text-xl"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h4 class="font-semibold text-gray-900">Cryptocurrency</h4>
+                                        <p class="text-sm text-gray-500">Instant</p>
+                                    </div>
+                                </div>
+                                <div class="text-orange-600 font-semibold text-sm">1% fee</div>
+                            </div>
+                            <p class="text-gray-600 text-sm">Receive in Bitcoin, USDT, or other crypto</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Withdrawal Form -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-lg p-6 sticky top-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Withdrawal Details</h3>
+                        
+                        <form id="withdrawalForm">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Withdrawal Amount</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                    <input type="number" id="withdrawAmount" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00" min="50" max="1250" step="0.01" required>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Available: $1,250.00</p>
+                            </div>
+
+                            <!-- Withdrawal Method Specific Fields -->
+                            <div id="mpesaOutFields" class="payment-fields hidden mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">M-Pesa Phone Number</label>
+                                <input type="tel" id="mpesaOutPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="254XXXXXXXXX">
+                            </div>
+
+                            <div id="paypalOutFields" class="payment-fields hidden mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">PayPal Email</label>
+                                <input type="email" id="paypalEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="your@email.com">
+                            </div>
+
+                            <div id="bankOutFields" class="payment-fields hidden mb-4">
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bank Name</label>
+                                    <input type="text" id="bankName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter bank name">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Account Number</label>
+                                    <input type="text" id="accountNumber" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter account number">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">SWIFT/Routing Code</label>
+                                    <input type="text" id="swiftCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter SWIFT/Routing code">
+                                </div>
+                            </div>
+
+                            <div id="cryptoOutFields" class="payment-fields hidden mb-4">
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Cryptocurrency</label>
+                                    <select id="cryptoType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="BTC">Bitcoin (BTC)</option>
+                                        <option value="USDT">Tether (USDT)</option>
+                                        <option value="ETH">Ethereum (ETH)</option>
+                                        <option value="USDC">USD Coin (USDC)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Wallet Address</label>
+                                    <input type="text" id="walletAddress" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter wallet address">
+                                </div>
+                            </div>
+
+                            <!-- Withdrawal Summary -->
+                            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                <h4 class="font-medium text-gray-900 mb-3">Withdrawal Summary</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Amount:</span>
+                                        <span id="withdrawSummaryAmount">$0.00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Processing Fee:</span>
+                                        <span id="withdrawSummaryFee">$0.00</span>
+                                    </div>
+                                    <div class="border-t pt-2 flex justify-between font-semibold">
+                                        <span>You'll Receive:</span>
+                                        <span id="withdrawSummaryTotal">$0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="withdrawButton" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                                <span id="withdrawButtonText">Select Withdrawal Method</span>
+                                <div id="withdrawButtonLoader" class="loading-spinner mx-auto hidden"></div>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction History Section -->
+        <div id="historySection" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Transaction History</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Dec 15, 2023</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-arrow-down mr-1"></i>
+                                        Deposit
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">M-Pesa</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$500.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Completed
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <button class="text-blue-600 hover:text-blue-900">View Receipt</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Dec 10, 2023</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-arrow-up mr-1"></i>
+                                        Withdrawal
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">PayPal</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$300.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        Processing
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <button class="text-blue-600 hover:text-blue-900">Track Status</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Dec 05, 2023</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-arrow-down mr-1"></i>
+                                        Deposit
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Credit Card</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$1,000.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Completed
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <button class="text-blue-600 hover:text-blue-900">View Receipt</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+<div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-2xl shadow-lg p-6 text-center w-80">
+    <h2 class="text-xl font-semibold text-green-600 mb-3"> Success!</h2>
+    <p class="text-gray-700 mb-4">Your operation was completed successfully.</p>
+    <button onclick="closeSuccessModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+      Close
+    </button>
+  </div>
+</div>
+
+<script>
+  function showSuccessModal() {
+    document.getElementById("successModal").classList.remove("hidden");
+  }
+  function closeSuccessModal() {
+    document.getElementById("successModal").classList.add("hidden");
+  }
+</script>
+
+    <!-- M-Pesa Payment Script -->
+<!-- Combined M-Pesa Script -->
+<script>
+    function showPaymentFields(method) {
+        const fieldsMap = {
+            'mpesa': 'mpesaFields',
+            'mpesa-out': 'mpesaOutFields'
+        };
+
+        const fieldId = fieldsMap[method];
+        if (fieldId) {
+            document.getElementById(fieldId).classList.remove('hidden');
+        }
+    }
+
+    function updateButtonText(method) {
+        const buttonTexts = {
+            'mpesa': 'Pay with M-Pesa',
+            'mpesa-out': 'Withdraw to M-Pesa'
+        };
+
+        const payButton = document.getElementById('payButtonText');
+        const withdrawButton = document.getElementById('withdrawButtonText');
+
+        if (payButton && buttonTexts[method] && method.indexOf('-out') === -1) {
+            payButton.textContent = buttonTexts[method];
+        }
+        if (withdrawButton && buttonTexts[method] && method.indexOf('-out') !== -1) {
+            withdrawButton.textContent = buttonTexts[method];
+        }
+    }
+
+    function calculateFee(amount, method) {
+        if (method === 'mpesa') {
+            return amount * 0.025;
+        }
+        return 0;
+    }
+
+    function calculateWithdrawFee(amount, method) {
+        if (method === 'mpesa-out') {
+            return amount * 0.025;
+        }
+        return 0;
+    }
+
+    async function handleMpesaPayment(e) {
+        e.preventDefault();
+
+        const method = getSelectedPaymentMethod();
+        const amount = document.getElementById('amount').value;
+        const phone = document.getElementById('mpesaPhone').value;
+
+        if (method !== 'mpesa') return;
+
+        if (!phone || !amount || amount < 10) {
+            alert('Enter valid phone number and amount (min $10)');
+            return;
+        }
+
+        showLoading('payButton', 'payButtonText', 'payButtonLoader');
+
+        try {
+            const response = await fetch('http://localhost:3000/api/mpesa/stkpush', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone, amount })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                showSuccessModal(`STK Push sent to ${phone}. Complete payment on your phone.`);
+            } else {
+                alert(`Error: ${result.error}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('STK Push failed');
+        }
+
+        hideLoading('payButton', 'payButtonText', 'payButtonLoader');
+    }
+
+    function handleMpesaWithdrawal(e) {
+        e.preventDefault();
+
+        const method = getSelectedWithdrawMethod();
+        if (method !== 'mpesa-out') return;
+
+        const amount = document.getElementById('withdrawAmount').value;
+        const phone = document.getElementById('mpesaOutPhone').value;
+
+        if (!phone || !amount || amount < 50) {
+            alert('Enter valid phone number and amount (min $50)');
+            return;
+        }
+
+        showLoading('withdrawButton', 'withdrawButtonText', 'withdrawButtonLoader');
+
+        setTimeout(() => {
+            hideLoading('withdrawButton', 'withdrawButtonText', 'withdrawButtonLoader');
+            showSuccessModal(`Withdrawal request of $${amount} via M-Pesa has been submitted successfully!`);
+        }, 2000);
+    }
+
+    function getSelectedPaymentMethod() {
+        const selected = document.querySelector('#depositSection .payment-card.selected');
+        return selected ? selected.dataset.method : null;
+    }
+
+    function getSelectedWithdrawMethod() {
+        const selected = document.querySelector('#withdrawSection .payment-card.selected');
+        return selected ? selected.dataset.method : null;
+    }
+
+    function showLoading(buttonId, textId, loaderId) {
+        document.getElementById(buttonId).disabled = true;
+        document.getElementById(textId).classList.add('hidden');
+        document.getElementById(loaderId).classList.remove('hidden');
+    }
+
+    function hideLoading(buttonId, textId, loaderId) {
+        document.getElementById(buttonId).disabled = false;
+        document.getElementById(textId).classList.remove('hidden');
+        document.getElementById(loaderId).classList.add('hidden');
+    }
+
+    function showSuccessModal(message) {
+        document.getElementById('successMessage').textContent = message;
+        document.getElementById('successModal').classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+</script>
+
+
+
+<script>
+         document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.id;
+                    const targetSection = tabId.replace('Tab', 'Section');
+
+                    // Update tab styles
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('border-blue-500', 'text-blue-600');
+                        btn.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    this.classList.add('border-blue-500', 'text-blue-600');
+                    this.classList.remove('border-transparent', 'text-gray-500');
+
+                    // Show/hide content
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(targetSection).classList.remove('hidden');
+                });
+            });
+
+            // Payment method selection
+            document.querySelectorAll('.payment-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const method = this.dataset.method;
+                    
+                    // Remove selection from all cards in the same section
+                    const section = this.closest('.tab-content');
+                    section.querySelectorAll('.payment-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    
+                    // Add selection to clicked card
+                    this.classList.add('selected');
+                    
+                    // Show relevant form fields
+                    hideAllPaymentFields();
+                    showPaymentFields(method);
+                    updateButtonText(method);
+                });
+            });
+
+            // Amount input handlers
+            document.getElementById('amount').addEventListener('input', updateSummary);
+            document.getElementById('withdrawAmount').addEventListener('input', updateWithdrawSummary);
+
+            // Form submissions
+            document.getElementById('paymentForm').addEventListener('submit', handleMpesaPayment);
+
+            document.getElementById('withdrawalForm').addEventListener('submit', handleWithdrawal);
+        });
+
+        function hideAllPaymentFields() {
+            document.querySelectorAll('.payment-fields').forEach(field => {
+                field.classList.add('hidden');
+            });
+        }
+
+        function showPaymentFields(method) {
+            const fieldsMap = {
+                'mpesa': 'mpesaFields',
+                'card': 'cardFields',
+                'stripe': 'cardFields',
+                'mpesa-out': 'mpesaOutFields',
+                'paypal-out': 'paypalOutFields',
+                'bank-out': 'bankOutFields',
+                'crypto-out': 'cryptoOutFields'
+            };
+            
+            const fieldId = fieldsMap[method];
+            if (fieldId) {
+                document.getElementById(fieldId).classList.remove('hidden');
+            }
+        }
+
+        function updateButtonText(method) {
+            const buttonTexts = {
+                'mpesa': 'Pay with M-Pesa',
+                'card': 'Pay with Card',
+                'paypal': 'Pay with PayPal',
+                'stripe': 'Pay with Stripe',
+                'bank': 'Pay with Bank Transfer',
+                'digital': 'Pay with Digital Wallet',
+                'mpesa-out': 'Withdraw to M-Pesa',
+                'paypal-out': 'Withdraw to PayPal',
+                'bank-out': 'Withdraw to Bank',
+                'crypto-out': 'Withdraw to Crypto Wallet'
+            };
+
+            const payButton = document.getElementById('payButtonText');
+            const withdrawButton = document.getElementById('withdrawButtonText');
+            
+            if (payButton && buttonTexts[method] && method.indexOf('-out') === -1) {
+                payButton.textContent = buttonTexts[method];
+            }
+            if (withdrawButton && buttonTexts[method] && method.indexOf('-out') !== -1) {
+                withdrawButton.textContent = buttonTexts[method];
+            }
+        }
+
+        function updateSummary() {
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
+            const fee = calculateFee(amount, getSelectedPaymentMethod());
+            const total = amount + fee;
+
+            document.getElementById('summaryAmount').textContent = `$${amount.toFixed(2)}`;
+            document.getElementById('summaryFee').textContent = `$${fee.toFixed(2)}`;
+            document.getElementById('summaryTotal').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function updateWithdrawSummary() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+            const method = getSelectedWithdrawMethod();
+            const fee = calculateWithdrawFee(amount, method);
+            const total = amount - fee;
+
+            document.getElementById('withdrawSummaryAmount').textContent = `$${amount.toFixed(2)}`;
+            document.getElementById('withdrawSummaryFee').textContent = `$${fee.toFixed(2)}`;
+            document.getElementById('withdrawSummaryTotal').textContent = `$${Math.max(0, total).toFixed(2)}`;
+        }
+
+        function calculateFee(amount, method) {
+            const feeRates = {
+                'mpesa': 0.025,
+                'card': 0.029,
+                'paypal': 0.035,
+                'stripe': 0.029,
+                'bank': 2.50,
+                'digital': 0.025
+            };
+            
+            if (method === 'bank') {
+                return 2.50;
+            }
+            
+            return amount * (feeRates[method] || 0.03);
+        }
+
+        function calculateWithdrawFee(amount, method) {
+            const feeRates = {
+                'mpesa-out': 0.025,
+                'paypal-out': 0.035,
+                'bank-out': 2.50,
+                'crypto-out': 0.01
+            };
+            
+            if (method === 'bank-out') {
+                return 2.50;
+            }
+            
+            return amount * (feeRates[method] || 0.03);
+        }
+
+        function getSelectedPaymentMethod() {
+            const selected = document.querySelector('#depositSection .payment-card.selected');
+            return selected ? selected.dataset.method : null;
+        }
+
+        function getSelectedWithdrawMethod() {
+            const selected = document.querySelector('#withdrawSection .payment-card.selected');
+            return selected ? selected.dataset.method : null;
+        }
+
+        function handlePayment(e) {
+            e.preventDefault();
+            
+            const method = getSelectedPaymentMethod();
+            if (!method) {
+                alert('Please select a payment method');
+                return;
+            }
+
+            const amount = document.getElementById('amount').value;
+            if (!amount || amount < 10) {
+                alert('Please enter a valid amount (minimum $10)');
+                return;
+            }
+
+            showLoading('payButton', 'payButtonText', 'payButtonLoader');
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                hideLoading('payButton', 'payButtonText', 'payButtonLoader');
+                
+                if (method === 'mpesa') {
+                    showMpesaModal();
+                } else {
+                    showSuccessModal(`Payment of $${amount} via ${method} has been processed successfully!`);
+                }
+            }, 2000);
+        }
+
+        function handleWithdrawal(e) {
+            e.preventDefault();
+            
+            const method = getSelectedWithdrawMethod();
+            if (!method) {
+                alert('Please select a withdrawal method');
+                return;
+            }
+
+            const amount = document.getElementById('withdrawAmount').value;
+            if (!amount || amount < 50) {
+                alert('Please enter a valid amount (minimum $50)');
+                return;
+            }
+
+            showLoading('withdrawButton', 'withdrawButtonText', 'withdrawButtonLoader');
+            
+            // Simulate withdrawal processing
+            setTimeout(() => {
+                hideLoading('withdrawButton', 'withdrawButtonText', 'withdrawButtonLoader');
+                showSuccessModal(`Withdrawal request of $${amount} via ${method} has been submitted successfully!`);
+            }, 2000);
+        }
+
+        function showMpesaModal() {
+            const phone = document.getElementById('mpesaPhone').value || document.getElementById('mpesaOutPhone').value;
+            alert(`M-Pesa STK Push sent to ${phone}. Please complete the payment on your phone.`);
+        }
+
+        function showLoading(buttonId, textId, loaderId) {
+            document.getElementById(buttonId).disabled = true;
+            document.getElementById(textId).classList.add('hidden');
+            document.getElementById(loaderId).classList.remove('hidden');
+        }
+
+        function hideLoading(buttonId, textId, loaderId) {
+            document.getElementById(buttonId).disabled = false;
+            document.getElementById(textId).classList.remove('hidden');
+            document.getElementById(loaderId).classList.add('hidden');
+        }
+
+        function showSuccessModal(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Format card number input
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            if (formattedValue !== e.target.value) {
+                e.target.value = formattedValue;
+            }
+        });
+
+        // Format expiry input
+        document.getElementById('cardExpiry').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value;
+        });
+    </script>
+    </body>
+</html>

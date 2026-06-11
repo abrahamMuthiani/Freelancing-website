@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Projects - Innobridge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0d9488;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .project-card {
+      transition: all 0.3s ease;
+    }
+    .project-card:hover {
+      transform: translateY(-5px);
+    }
+    .tab-btn {
+      transition: all 0.3s ease;
+    }
+    .tab-btn.active {
+      border-bottom: 3px solid #0d9488;
+      color: #0d9488;
+      font-weight: 600;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+    }
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background-color: white;
+      border-radius: 1rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    .milestone-item {
+      border-left: 3px solid #d1d5db;
+      transition: all 0.3s ease;
+    }
+    .milestone-item.completed {
+      border-left-color: #10b981;
+    }
+    .milestone-item:hover {
+      background: #f9fafb;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="bg-teal-600 text-white font-bold rounded-full w-10 h-10 flex items-center justify-center">
+          I
+        </div>
+        <div>
+          <h1 class="text-xl md:text-2xl font-bold text-gray-800">My Projects</h1>
+          <p class="text-sm text-gray-500">Manage your active and pending work</p>
+        </div>
+      </div>
+      <a href="user-dashboard.html" class="text-teal-600 hover:bg-teal-50 px-4 py-2 rounded-lg transition flex items-center gap-2 font-semibold">
+        <i class="ri-arrow-left-line"></i>
+        <span class="hidden md:inline">Dashboard</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Tabs Navigation -->
+  <section class="bg-white shadow-sm border-b sticky top-[73px] z-40">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="flex gap-8 overflow-x-auto">
+        <button class="tab-btn active py-4 px-2 text-gray-600 whitespace-nowrap" onclick="switchTab('approved')">
+          <i class="ri-checkbox-circle-line mr-2"></i>
+          Approved Projects
+          <span id="approvedCount" class="ml-2 bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold">0</span>
+        </button>
+        <button class="tab-btn py-4 px-2 text-gray-600 whitespace-nowrap" onclick="switchTab('pending')">
+          <i class="ri-time-line mr-2"></i>
+          Pending Applications
+          <span id="pendingCount" class="ml-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-bold">0</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="container mx-auto px-4 md:px-6 py-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
+        <div class="bg-green-100 text-green-600 rounded-full w-12 h-12 flex items-center justify-center">
+          <i class="ri-check-double-line text-2xl"></i>
+        </div>
+        <div>
+          <p class="text-gray-500 text-sm">Active Projects</p>
+          <p id="statActive" class="text-2xl font-bold text-gray-800">0</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
+        <div class="bg-yellow-100 text-yellow-600 rounded-full w-12 h-12 flex items-center justify-center">
+          <i class="ri-hourglass-line text-2xl"></i>
+        </div>
+        <div>
+          <p class="text-gray-500 text-sm">Pending</p>
+          <p id="statPending" class="text-2xl font-bold text-gray-800">0</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
+        <div class="bg-teal-100 text-teal-600 rounded-full w-12 h-12 flex items-center justify-center">
+          <i class="ri-money-dollar-circle-line text-2xl"></i>
+        </div>
+        <div>
+          <p class="text-gray-500 text-sm">Total Value</p>
+          <p id="statValue" class="text-2xl font-bold text-gray-800">$0</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
+        <div class="bg-purple-100 text-purple-600 rounded-full w-12 h-12 flex items-center justify-center">
+          <i class="ri-calendar-check-line text-2xl"></i>
+        </div>
+        <div>
+          <p class="text-gray-500 text-sm">Completed</p>
+          <p id="statCompleted" class="text-2xl font-bold text-gray-800">0</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 md:px-6 py-6">
+    <!-- Loading State -->
+    <div id="loadingState" class="flex flex-col items-center justify-center py-16">
+      <div class="loading-spinner mb-4"></div>
+      <p class="text-gray-600">Loading your projects...</p>
+    </div>
+
+    <!-- Approved Projects Tab -->
+    <div id="approvedTab" class="tab-content">
+      <div id="approvedContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6" style="display: none;">
+        <!-- Approved project cards will be injected here -->
+      </div>
+      <div id="noApproved" class="hidden text-center py-16">
+        <div class="bg-white rounded-lg shadow-lg p-12 max-w-md mx-auto">
+          <i class="ri-inbox-line text-6xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">No Active Projects</h3>
+          <p class="text-gray-500 mb-6">You don't have any approved projects yet.</p>
+          <a href="explore-projects.html" class="inline-block bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition">
+            <i class="ri-search-line mr-2"></i>Browse Projects
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Projects Tab -->
+    <div id="pendingTab" class="tab-content hidden">
+      <div id="pendingContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" style="display: none;">
+        <!-- Pending project cards will be injected here -->
+      </div>
+      <div id="noPending" class="hidden text-center py-16">
+        <div class="bg-white rounded-lg shadow-lg p-12 max-w-md mx-auto">
+          <i class="ri-mail-open-line text-6xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">No Pending Applications</h3>
+          <p class="text-gray-500 mb-6">You haven't applied to any projects yet.</p>
+          <a href="explore-projects.html" class="inline-block bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition">
+            <i class="ri-search-line mr-2"></i>Find Projects
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Submission Modal -->
+  <div id="submissionModal" class="modal">
+    <div class="modal-content">
+      <div class="bg-gradient-to-r from-teal-600 to-teal-700 text-white p-6 rounded-t-lg">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-2xl font-bold">Project Submission</h3>
+            <p id="modalProjectTitle" class="text-teal-100 text-sm mt-1"></p>
+          </div>
+          <button onclick="closeSubmissionModal()" class="text-white hover:bg-white/20 p-2 rounded-lg transition">
+            <i class="ri-close-line text-2xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <!-- Submission Type Tabs -->
+        <div class="flex gap-2 mb-6 border-b">
+          <button class="submission-tab active px-4 py-2 font-semibold text-teal-600 border-b-2 border-teal-600" onclick="switchSubmissionTab('milestone')">
+            Milestone
+          </button>
+          <button class="submission-tab px-4 py-2 font-semibold text-gray-600" onclick="switchSubmissionTab('progress')">
+            Progress Update
+          </button>
+          <button class="submission-tab px-4 py-2 font-semibold text-gray-600" onclick="switchSubmissionTab('final')">
+            Final Delivery
+          </button>
+        </div>
+
+        <!-- Milestone Submission -->
+        <div id="milestoneSubmission" class="submission-content">
+          <form id="milestoneForm">
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Milestone</label>
+              <input type="text" id="milestoneName" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., Database Design Completed" required>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Description</label>
+              <textarea id="milestoneDescription" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Describe what was accomplished..." required></textarea>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Deliverables (optional)</label>
+              <input type="file" id="milestoneFiles" multiple class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <p class="text-sm text-gray-500 mt-1">Upload documents, screenshots, or other files</p>
+            </div>
+            <div class="mb-6">
+              <label class="block text-gray-700 font-semibold mb-2">Completion %</label>
+              <input type="range" id="milestoneProgress" min="0" max="100" value="0" class="w-full" oninput="updateProgressValue(this.value)">
+              <div class="flex justify-between text-sm text-gray-600 mt-1">
+                <span>0%</span>
+                <span id="progressValue" class="font-bold text-teal-600">0%</span>
+                <span>100%</span>
+              </div>
+            </div>
+            <button type="submit" class="w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition">
+              <i class="ri-check-line mr-2"></i>Submit Milestone
+            </button>
+          </form>
+        </div>
+
+        <!-- Progress Update -->
+        <div id="progressSubmission" class="submission-content hidden">
+          <form id="progressForm">
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Progress Title</label>
+              <input type="text" id="progressTitle" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Brief title of update" required>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Update Details</label>
+              <textarea id="progressDetails" rows="5" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="What have you been working on?" required></textarea>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Status</label>
+              <select id="progressStatus" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                <option value="on-track">On Track</option>
+                <option value="ahead">Ahead of Schedule</option>
+                <option value="behind">Behind Schedule</option>
+                <option value="blocked">Blocked</option>
+              </select>
+            </div>
+            <div class="mb-6">
+              <label class="block text-gray-700 font-semibold mb-2">Attachments (optional)</label>
+              <input type="file" id="progressFiles" multiple class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+            <button type="submit" class="w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition">
+              <i class="ri-send-plane-line mr-2"></i>Send Update
+            </button>
+          </form>
+        </div>
+
+        <!-- Final Delivery -->
+        <div id="finalSubmission" class="submission-content hidden">
+          <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded">
+            <div class="flex items-start">
+              <i class="ri-information-line text-yellow-600 text-xl mr-3 mt-1"></i>
+              <div>
+                <p class="font-semibold text-yellow-800">Final Submission</p>
+                <p class="text-sm text-yellow-700">This will mark the project as completed and ready for client review.</p>
+              </div>
+            </div>
+          </div>
+
+          <form id="finalForm">
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Project Summary</label>
+              <textarea id="finalSummary" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Summarize what was delivered..." required></textarea>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Final Deliverables *</label>
+              <input type="file" id="finalFiles" multiple class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+              <p class="text-sm text-gray-500 mt-1">Upload all final files, documentation, and source code</p>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Additional Notes</label>
+              <textarea id="finalNotes" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Any additional information for the client..."></textarea>
+            </div>
+            <div class="mb-6">
+              <label class="flex items-center gap-2">
+                <input type="checkbox" id="finalConfirm" class="w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500" required>
+                <span class="text-sm text-gray-700">I confirm all work is complete and ready for client review</span>
+              </label>
+            </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition">
+              <i class="ri-checkbox-circle-line mr-2"></i>Submit Final Delivery
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:3000/api';
+    let approvedProjects = [];
+    let pendingProjects = [];
+    let currentProjectId = null;
+    let currentUser = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      currentUser = getUserFromStorage();
+      
+      if (!currentUser || !currentUser._id) {
+        alert('⚠️ Please log in to view your projects.');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+        return;
+      }
+
+      await loadProjects();
+      setupFormHandlers();
+    });
+
+    function getUserFromStorage() {
+      try {
+        const userStr = localStorage.getItem('user');
+        return userStr ? JSON.parse(userStr) : null;
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        return null;
+      }
+    }
+
+    async function loadProjects() {
+      showLoading();
+
+      try {
+        // Fetch all projects
+        const projectsResponse = await fetch(`${API_BASE_URL}/projects`);
+        if (!projectsResponse.ok) throw new Error(`HTTP error! status: ${projectsResponse.status}`);
+        const allProjects = await projectsResponse.json();
+        
+        console.log('📊 Total projects:', allProjects.length);
+        console.log('👤 Current user ID:', currentUser._id);
+        
+        // Try to fetch proposals from the separate Proposal collection
+        let userProposalsFromCollection = [];
+        try {
+          const proposalsResponse = await fetch(`${API_BASE_URL}/proposals/freelancer/${currentUser._id}`);
+          if (proposalsResponse.ok) {
+            userProposalsFromCollection = await proposalsResponse.json();
+            console.log('📝 Proposals from collection:', userProposalsFromCollection.length);
+          }
+        } catch (err) {
+          console.log('ℹ️ Proposals endpoint not available or returned error');
+        }
+        
+        // Filter APPROVED projects - where user's proposal was accepted
+        approvedProjects = allProjects.filter(p => {
+          // Check if project status is active
+          const isActive = p.status === 'open' || 
+                          p.status === 'in-progress' || 
+                          p.status === 'completed';
+          
+          if (!isActive) return false;
+          
+          // Check if user is assigned as freelancer (from accepted proposal)
+          const isAssigned = p.freelancerId === currentUser._id ||
+                           (p.freelancerId && typeof p.freelancerId === 'object' && p.freelancerId._id === currentUser._id);
+          
+          // Check in separate Proposal collection
+          const hasAcceptedProposalInCollection = userProposalsFromCollection.some(proposal => {
+            const projectId = proposal.projectId?._id || proposal.projectId;
+            return projectId.toString() === p._id.toString() && proposal.status === 'accepted';
+          });
+          
+          // Check in embedded proposals array
+          let hasAcceptedProposalEmbedded = false;
+          if (p.proposals && Array.isArray(p.proposals)) {
+            hasAcceptedProposalEmbedded = p.proposals.some(prop => {
+              const freelancerIdMatch = prop.freelancerId === currentUser._id ||
+                                       (prop.freelancerId && prop.freelancerId.toString() === currentUser._id);
+              return freelancerIdMatch && prop.status === 'approved';
+            });
+          }
+          
+          const shouldShow = isAssigned || hasAcceptedProposalInCollection || hasAcceptedProposalEmbedded;
+          
+          if (shouldShow) {
+            console.log(' Approved project:', p.title, {
+              status: p.status,
+              isAssigned,
+              hasAcceptedProposalInCollection,
+              hasAcceptedProposalEmbedded
+            });
+          }
+          
+          return shouldShow;
+        });
+
+        // Filter PENDING projects - where user applied but not accepted yet
+        pendingProjects = allProjects.filter(p => {
+          const projectIdStr = p._id.toString();
+          
+          // Check in separate Proposal collection for pending proposals
+          const hasPendingProposalInCollection = userProposalsFromCollection.some(proposal => {
+            const projectId = proposal.projectId?._id || proposal.projectId;
+            return projectId.toString() === projectIdStr && proposal.status === 'pending';
+          });
+          
+          // Check in embedded proposals array for pending proposals
+          let hasPendingProposalEmbedded = false;
+          if (p.proposals && Array.isArray(p.proposals)) {
+            hasPendingProposalEmbedded = p.proposals.some(prop => {
+              const freelancerIdMatch = prop.freelancerId === currentUser._id ||
+                                       (prop.freelancerId && prop.freelancerId.toString() === currentUser._id);
+              return freelancerIdMatch && prop.status === 'pending';
+            });
+          }
+          
+          const shouldShow = hasPendingProposalInCollection || hasPendingProposalEmbedded;
+          
+          if (shouldShow) {
+            console.log('⏳ Pending application:', p.title);
+          }
+          
+          return shouldShow;
+        });
+
+        console.log(' Final approved projects:', approvedProjects.length);
+        console.log('⏳ Final pending projects:', pendingProjects.length);
+
+        updateStats();
+        updateCounts();
+        displayApprovedProjects();
+        displayPendingProjects();
+
+      } catch (error) {
+        console.error(' Error loading projects:', error);
+        hideLoading();
+        alert('Failed to load projects. Please check console for details.');
+      }
+    }
+
+    function updateStats() {
+      const completedProjects = approvedProjects.filter(p => p.status === 'completed').length;
+      const totalValue = approvedProjects.reduce((sum, p) => sum + (p.budget || 0), 0);
+
+      document.getElementById('statActive').textContent = approvedProjects.length;
+      document.getElementById('statPending').textContent = pendingProjects.length;
+      document.getElementById('statValue').textContent = `$${formatNumber(totalValue)}`;
+      document.getElementById('statCompleted').textContent = completedProjects;
+    }
+
+    function updateCounts() {
+      document.getElementById('approvedCount').textContent = approvedProjects.length;
+      document.getElementById('pendingCount').textContent = pendingProjects.length;
+    }
+
+    function displayApprovedProjects() {
+      const container = document.getElementById('approvedContainer');
+      const noProjects = document.getElementById('noApproved');
+      
+      hideLoading();
+
+      if (approvedProjects.length === 0) {
+        container.style.display = 'none';
+        noProjects.classList.remove('hidden');
+        return;
+      }
+
+      container.style.display = 'grid';
+      noProjects.classList.add('hidden');
+      container.innerHTML = '';
+
+      approvedProjects.forEach(project => {
+        const card = createApprovedProjectCard(project);
+        container.appendChild(card);
+      });
+    }
+
+    function createApprovedProjectCard(project) {
+      const card = document.createElement('div');
+      card.className = "project-card bg-white shadow-lg rounded-xl p-6";
+
+      const deadline = new Date(project.deadline);
+      const daysUntil = Math.ceil((deadline - new Date()) / (1000 * 60 * 60 * 24));
+      const urgencyClass = daysUntil <= 3 ? 'bg-red-100 text-red-800' : daysUntil <= 7 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800';
+
+      let clientName = 'N/A';
+      if (project.clientId && typeof project.clientId === 'object') {
+        clientName = `${project.clientId.firstName || ''} ${project.clientId.lastName || ''}`.trim();
+      }
+
+      // Calculate progress (mock data - you can implement actual milestone tracking)
+      const progress = project.progress || 0;
+
+      card.innerHTML = `
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">${escapeHtml(project.title)}</h3>
+            <p class="text-sm text-gray-600 mb-3">${escapeHtml(project.description.substring(0, 120))}...</p>
+          </div>
+          <span class="${urgencyClass} text-xs px-3 py-1 rounded-full font-semibold whitespace-nowrap ml-2">
+            ${daysUntil > 0 ? `${daysUntil}d left` : 'Overdue'}
+          </span>
+        </div>
+
+        <div class="mb-4">
+          <div class="flex justify-between text-sm mb-2">
+            <span class="text-gray-600 font-semibold">Progress</span>
+            <span class="text-teal-600 font-bold">${progress}%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-3">
+            <div class="progress-bar bg-gradient-to-r from-teal-500 to-emerald-500 h-3 rounded-full" style="width: ${progress}%"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-gray-50 rounded-lg p-3">
+            <p class="text-xs text-gray-500 mb-1">Budget</p>
+            <p class="font-bold text-teal-600">${project.currency || '$'}${formatNumber(project.budget || 0)}</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <p class="text-xs text-gray-500 mb-1">Client</p>
+            <p class="font-semibold text-gray-800 text-sm truncate">${escapeHtml(clientName)}</p>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <button onclick="openSubmissionModal('${project._id}', '${escapeHtml(project.title)}')" class="flex-1 bg-teal-600 text-white py-2 px-4 rounded-lg hover:bg-teal-700 transition font-semibold flex items-center justify-center gap-2">
+            <i class="ri-upload-cloud-line"></i>
+            Submit Work
+          </button>
+          <button onclick="viewProjectDetails('${project._id}')" class="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition">
+            <i class="ri-eye-line"></i>
+          </button>
+          <button onclick="contactClient('${project._id}')" class="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition">
+            <i class="ri-message-3-line"></i>
+          </button>
+        </div>
+      `;
+
+      return card;
+    }
+
+    function displayPendingProjects() {
+      const container = document.getElementById('pendingContainer');
+      const noProjects = document.getElementById('noPending');
+
+      if (pendingProjects.length === 0) {
+        container.style.display = 'none';
+        noProjects.classList.remove('hidden');
+        return;
+      }
+
+      container.style.display = 'grid';
+      noProjects.classList.add('hidden');
+      container.innerHTML = '';
+
+      pendingProjects.forEach(project => {
+        const card = createPendingProjectCard(project);
+        container.appendChild(card);
+      });
+    }
+
+    function createPendingProjectCard(project) {
+      const card = document.createElement('div');
+      card.className = "project-card bg-white shadow-md rounded-lg p-6";
+
+      card.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-lg font-bold text-gray-800 flex-1">${escapeHtml(project.title)}</h3>
+          <span class="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-semibold whitespace-nowrap ml-2">
+            <i class="ri-time-line"></i> Pending
+          </span>
+        </div>
+
+        <p class="text-gray-600 text-sm mb-4 line-clamp-2">${escapeHtml(project.description.substring(0, 100))}...</p>
+
+        <div class="flex items-center gap-3 mb-4">
+          <span class="bg-teal-100 text-teal-800 text-sm px-3 py-1 rounded-full font-semibold">
+            ${project.currency || '$'}${formatNumber(project.budget || 0)}
+          </span>
+          <span class="text-sm text-gray-600">
+            <i class="ri-user-line"></i> ${project.applicants?.length || 0} applicants
+          </span>
+        </div>
+
+        <div class="flex gap-2">
+          <button onclick="viewProjectDetails('${project._id}')" class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition font-semibold">
+            <i class="ri-eye-line mr-1"></i> View Details
+          </button>
+          <button onclick="withdrawApplication('${project._id}')" class="bg-red-50 text-red-600 py-2 px-4 rounded-lg hover:bg-red-100 transition">
+            <i class="ri-close-line"></i>
+          </button>
+        </div>
+      `;
+
+      return card;
+    }
+
+    function switchTab(tab) {
+      // Update tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Show/hide content
+      if (tab === 'approved') {
+        document.getElementById('approvedTab').classList.remove('hidden');
+        document.getElementById('pendingTab').classList.add('hidden');
+      } else {
+        document.getElementById('approvedTab').classList.add('hidden');
+        document.getElementById('pendingTab').classList.remove('hidden');
+      }
+    }
+
+    function openSubmissionModal(projectId, projectTitle) {
+      currentProjectId = projectId;
+      document.getElementById('modalProjectTitle').textContent = projectTitle;
+      document.getElementById('submissionModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSubmissionModal() {
+      document.getElementById('submissionModal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+      resetForms();
+    }
+
+    function switchSubmissionTab(type) {
+      // Update tab buttons
+      document.querySelectorAll('.submission-tab').forEach(btn => {
+        btn.classList.remove('active', 'text-teal-600', 'border-b-2', 'border-teal-600');
+        btn.classList.add('text-gray-600');
+      });
+      event.target.classList.add('active', 'text-teal-600', 'border-b-2', 'border-teal-600');
+      event.target.classList.remove('text-gray-600');
+
+      // Show/hide content
+      document.querySelectorAll('.submission-content').forEach(content => content.classList.add('hidden'));
+      
+      if (type === 'milestone') {
+        document.getElementById('milestoneSubmission').classList.remove('hidden');
+      } else if (type === 'progress') {
+        document.getElementById('progressSubmission').classList.remove('hidden');
+      } else if (type === 'final') {
+        document.getElementById('finalSubmission').classList.remove('hidden');
+      }
+    }
+
+    function updateProgressValue(value) {
+      document.getElementById('progressValue').textContent = value + '%';
+    }
+
+    function setupFormHandlers() {
+      // Milestone Form
+      document.getElementById('milestoneForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await submitMilestone();
+      });
+
+      // Progress Form
+      document.getElementById('progressForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await submitProgress();
+      });
+
+      // Final Form
+      document.getElementById('finalForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await submitFinal();
+      });
+    }
+
+    async function submitMilestone() {
+      const name = document.getElementById('milestoneName').value;
+      const description = document.getElementById('milestoneDescription').value;
+      const progress = document.getElementById('milestoneProgress').value;
+      const files = document.getElementById('milestoneFiles').files;
+
+      // In a real implementation, you would upload files and send data to backend
+      console.log('Milestone Submission:', { projectId: currentProjectId, name, description, progress, files });
+
+      alert(' Milestone submitted successfully!');
+      closeSubmissionModal();
+      
+      // Refresh projects
+      await loadProjects();
+    }
+
+    async function submitProgress() {
+      const title = document.getElementById('progressTitle').value;
+      const details = document.getElementById('progressDetails').value;
+      const status = document.getElementById('progressStatus').value;
+      const files = document.getElementById('progressFiles').files;
+
+      console.log('Progress Update:', { projectId: currentProjectId, title, details, status, files });
+
+      alert(' Progress update sent successfully!');
+      closeSubmissionModal();
+    }
+
+    async function submitFinal() {
+      const summary = document.getElementById('finalSummary').value;
+      const notes = document.getElementById('finalNotes').value;
+      const files = document.getElementById('finalFiles').files;
+      const confirmed = document.getElementById('finalConfirm').checked;
+
+      if (!confirmed) {
+        alert('⚠️ Please confirm that all work is complete.');
+        return;
+      }
+
+      if (files.length === 0) {
+        alert('⚠️ Please upload final deliverables.');
+        return;
+      }
+
+      console.log('Final Delivery:', { projectId: currentProjectId, summary, notes, files });
+
+      alert('🎉 Final delivery submitted! The client will review your work.');
+      closeSubmissionModal();
+      
+      // Refresh projects
+      await loadProjects();
+    }
+
+    function resetForms() {
+      document.getElementById('milestoneForm').reset();
+      document.getElementById('progressForm').reset();
+      document.getElementById('finalForm').reset();
+      document.getElementById('progressValue').textContent = '0%';
+    }
+
+    function viewProjectDetails(projectId) {
+      window.location.href = `project-detail.html?id=${projectId}`;
+    }
+
+    function contactClient(projectId) {
+      alert('📧 Messaging feature coming soon!');
+    }
+
+    function withdrawApplication(projectId) {
+      if (confirm('Are you sure you want to withdraw your application?')) {
+        alert('Application withdrawn');
+        loadProjects();
+      }
+    }
+
+    function showLoading() {
+      document.getElementById('loadingState').classList.remove('hidden');
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingState').classList.add('hidden');
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatNumber(num) {
+      return new Intl.NumberFormat('en-US').format(num);
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('submissionModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        closeSubmissionModal();
+      }
+    });
+  </script>
+
+</body>
+</html>

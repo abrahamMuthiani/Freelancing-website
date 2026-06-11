@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - InnoBridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .profile-card {
+            transition: all 0.3s ease;
+        }
+        
+        .profile-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .skill-badge {
+            transition: all 0.3s ease;
+        }
+        
+        .skill-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .edit-mode {
+            border: 2px dashed #0d9488;
+            background: rgba(13, 148, 136, 0.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+    <!-- Header -->
+    <header class="glass shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-4">
+                    <button onclick="window.history.back()" class="p-2 rounded-xl hover:bg-gray-100 transition">
+                        <i class="ri-arrow-left-line text-2xl text-gray-700"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold gradient-text">My Profile</h1>
+                        <p class="text-sm text-gray-600">Manage your account information</p>
+                    </div>
+                </div>
+                
+                <button id="editBtn" class="px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-xl hover:shadow-lg transition font-semibold flex items-center gap-2">
+                    <i class="ri-edit-line"></i>
+                    <span>Edit Profile</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Profile Card -->
+                <div class="profile-card glass rounded-2xl shadow-lg p-6 text-center animate-fade-in">
+                    <div class="relative inline-block mb-4">
+                        <div id="profileAvatar" class="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center text-white text-5xl font-bold shadow-xl">
+                            <div class="loading-skeleton w-32 h-32 rounded-full"></div>
+                        </div>
+                        <button class="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-teal-600 hover:bg-gray-50 transition">
+                            <i class="ri-camera-line text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <h2 id="profileName" class="text-2xl font-bold text-gray-900 mb-1">
+                        <div class="loading-skeleton w-40 h-8 rounded mx-auto"></div>
+                    </h2>
+                    <p id="profileRole" class="text-gray-600 mb-1">
+                        <div class="loading-skeleton w-24 h-5 rounded mx-auto"></div>
+                    </p>
+                    <p id="profileEmail" class="text-sm text-gray-500 mb-4">
+                        <div class="loading-skeleton w-48 h-4 rounded mx-auto"></div>
+                    </p>
+                    
+                    <div class="flex items-center justify-center gap-2 mb-4">
+                        <div class="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 pt-4 border-t">
+                        <div>
+                            <div class="text-2xl font-bold text-teal-600" id="projectCount">
+                                <div class="loading-skeleton w-12 h-8 rounded mx-auto"></div>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1">Projects</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-teal-600" id="experienceYears">
+                                <div class="loading-skeleton w-12 h-8 rounded mx-auto"></div>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1">Experience</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="profile-card glass rounded-2xl shadow-lg p-6 animate-fade-in" style="animation-delay: 0.1s">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="ri-contacts-line text-teal-600"></i>
+                        Contact Information
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <i class="ri-mail-line text-xl text-gray-400 mt-0.5"></i>
+                            <div class="flex-1">
+                                <div class="text-xs text-gray-500 mb-1">Email</div>
+                                <div id="contactEmail" class="text-sm text-gray-900 font-medium break-all">
+                                    <div class="loading-skeleton w-full h-5 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <i class="ri-phone-line text-xl text-gray-400 mt-0.5"></i>
+                            <div class="flex-1">
+                                <div class="text-xs text-gray-500 mb-1">Phone</div>
+                                <div id="contactPhone" class="text-sm text-gray-900 font-medium">
+                                    <div class="loading-skeleton w-32 h-5 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <i class="ri-map-pin-line text-xl text-gray-400 mt-0.5"></i>
+                            <div class="flex-1">
+                                <div class="text-xs text-gray-500 mb-1">Location</div>
+                                <div id="contactLocation" class="text-sm text-gray-900 font-medium">
+                                    <div class="loading-skeleton w-40 h-5 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- About Section -->
+                <div class="profile-card glass rounded-2xl shadow-lg p-6 animate-fade-in" style="animation-delay: 0.2s">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="ri-user-line text-teal-600"></i>
+                        About
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700 mb-2 block">Full Name</label>
+                            <div id="fullName" class="text-gray-900">
+                                <div class="loading-skeleton w-full h-10 rounded-lg"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700 mb-2 block">Username</label>
+                            <div id="username" class="text-gray-900">
+                                <div class="loading-skeleton w-full h-10 rounded-lg"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700 mb-2 block">Field of Work</label>
+                            <div id="fieldOfWork" class="text-gray-900">
+                                <div class="loading-skeleton w-full h-10 rounded-lg"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700 mb-2 block">Experience Level</label>
+                            <div id="experienceLevel" class="text-gray-900">
+                                <div class="loading-skeleton w-full h-10 rounded-lg"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700 mb-2 block">Hours Available</label>
+                            <div id="hoursAvailable" class="text-gray-900">
+                                <div class="loading-skeleton w-full h-10 rounded-lg"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700 mb-2 block">Member Since</label>
+                            <div id="memberSince" class="text-gray-900">
+                                <div class="loading-skeleton w-full h-10 rounded-lg"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills Section -->
+                <div class="profile-card glass rounded-2xl shadow-lg p-6 animate-fade-in" style="animation-delay: 0.3s">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="ri-lightbulb-line text-teal-600"></i>
+                        Skills & Expertise
+                    </h3>
+                    
+                    <div id="skillsContainer" class="flex flex-wrap gap-3">
+                        <div class="loading-skeleton w-24 h-10 rounded-full"></div>
+                        <div class="loading-skeleton w-32 h-10 rounded-full"></div>
+                        <div class="loading-skeleton w-28 h-10 rounded-full"></div>
+                        <div class="loading-skeleton w-36 h-10 rounded-full"></div>
+                        <div class="loading-skeleton w-24 h-10 rounded-full"></div>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="profile-card glass rounded-2xl shadow-lg p-6 animate-fade-in" style="animation-delay: 0.4s">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="ri-settings-3-line text-teal-600"></i>
+                        Account Settings
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="ri-notification-3-line text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Email Notifications</div>
+                                    <div class="text-sm text-gray-500">Receive updates via email</div>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i class="ri-lock-line text-purple-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Two-Factor Authentication</div>
+                                    <div class="text-sm text-gray-500">Add extra security</div>
+                                </div>
+                            </div>
+                            <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm">
+                                Enable
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <i class="ri-key-line text-red-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Change Password</div>
+                                    <div class="text-sm text-gray-500">Update your password</div>
+                                </div>
+                            </div>
+                            <button onclick="alert('Password change feature coming soon!')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm">
+                                Change
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="profile-card glass rounded-2xl shadow-lg p-6 border-2 border-red-200 animate-fade-in" style="animation-delay: 0.5s">
+                    <h3 class="text-xl font-bold text-red-600 mb-4 flex items-center gap-2">
+                        <i class="ri-error-warning-line"></i>
+                        Danger Zone
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <button onclick="deactivateAccount()" class="w-full flex items-center justify-between p-4 rounded-xl border-2 border-red-200 hover:bg-red-50 transition">
+                            <div class="text-left">
+                                <div class="font-semibold text-gray-900">Deactivate Account</div>
+                                <div class="text-sm text-gray-500">Temporarily disable your account</div>
+                            </div>
+                            <i class="ri-arrow-right-line text-red-600 text-xl"></i>
+                        </button>
+                        
+                        <button onclick="deleteAccount()" class="w-full flex items-center justify-between p-4 rounded-xl border-2 border-red-200 hover:bg-red-50 transition">
+                            <div class="text-left">
+                                <div class="font-semibold text-red-600">Delete Account</div>
+                                <div class="text-sm text-gray-500">Permanently delete your account</div>
+                            </div>
+                            <i class="ri-arrow-right-line text-red-600 text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            currentUser = getUserFromStorage();
+            
+            if (!currentUser || !currentUser._id) {
+                alert('Please log in to view your profile');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            await loadUserProfile();
+            setupEventListeners();
+        });
+
+        // Get user from localStorage
+        function getUserFromStorage() {
+            try {
+                const userStr = localStorage.getItem('user');
+                return userStr ? JSON.parse(userStr) : null;
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                return null;
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('editBtn').addEventListener('click', () => {
+                alert('Edit profile feature coming soon!');
+            });
+        }
+
+        // Load user profile
+        async function loadUserProfile() {
+            try {
+                // Try to fetch fresh data from API
+                const response = await fetch(`${API_BASE_URL}/user/${currentUser._id}`);
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    displayUserProfile(userData);
+                } else {
+                    // Fallback to localStorage data
+                    displayUserProfile(currentUser);
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                // Fallback to localStorage data
+                displayUserProfile(currentUser);
+            }
+        }
+
+        // Display user profile
+        function displayUserProfile(user) {
+            // Profile Card
+            const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
+            const initials = ((user.firstName?.[0] || '') + (user.lastName?.[0] || '')).toUpperCase() || 'U';
+            
+            document.getElementById('profileAvatar').textContent = initials;
+            document.getElementById('profileName').textContent = fullName;
+            document.getElementById('profileRole').textContent = capitalizeFirst(user.role || 'User');
+            document.getElementById('profileEmail').textContent = user.email || 'N/A';
+            
+            // Stats
+            document.getElementById('projectCount').textContent = '0';
+            document.getElementById('experienceYears').textContent = getExperienceYears(user.experienceLevel);
+            
+            // Contact Info
+            document.getElementById('contactEmail').textContent = user.email || 'Not provided';
+            document.getElementById('contactPhone').textContent = user.phone || 'Not provided';
+            document.getElementById('contactLocation').textContent = formatLocation(user.city, user.country);
+            
+            // About Section
+            document.getElementById('fullName').textContent = fullName;
+            document.getElementById('username').textContent = user.username || 'N/A';
+            document.getElementById('fieldOfWork').textContent = user.fieldOfWork || 'Not specified';
+            document.getElementById('experienceLevel').textContent = user.experienceLevel || 'Not specified';
+            document.getElementById('hoursAvailable').textContent = user.hoursAvailable ? `${user.hoursAvailable} hours/week` : 'Not specified';
+            document.getElementById('memberSince').textContent = formatDate(user.createdAt);
+            
+            // Skills
+            displaySkills(user.specificSkills || []);
+        }
+
+        // Display skills
+        function displaySkills(skills) {
+            const container = document.getElementById('skillsContainer');
+            container.innerHTML = '';
+            
+            if (!skills || skills.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm">No skills added yet</p>';
+                return;
+            }
+            
+            skills.forEach((skill, index) => {
+                const badge = document.createElement('span');
+                badge.className = 'skill-badge px-4 py-2 bg-gradient-to-r from-teal-100 to-cyan-100 text-teal-700 rounded-full text-sm font-semibold border border-teal-200';
+                badge.textContent = skill;
+                badge.style.animationDelay = `${index * 0.05}s`;
+                badge.classList.add('animate-fade-in');
+                container.appendChild(badge);
+            });
+        }
+
+        // Utility functions
+        function capitalizeFirst(str) {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        }
+
+        function formatLocation(city, country) {
+            if (city && country) return `${city}, ${country}`;
+            if (country) return country;
+            if (city) return city;
+            return 'Not provided';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function getExperienceYears(level) {
+            const levels = {
+                'beginner': '0-1',
+                'intermediate': '1-3',
+                'advanced': '3-5',
+                'expert': '5+'
+            };
+            return levels[level?.toLowerCase()] || 'N/A';
+        }
+
+        // Account actions
+        function deactivateAccount() {
+            if (confirm('Are you sure you want to deactivate your account? You can reactivate it anytime by logging in.')) {
+                alert('Account deactivation feature will be implemented soon.');
+            }
+        }
+
+        function deleteAccount() {
+            if (confirm('⚠️ WARNING: This action cannot be undone. Are you absolutely sure you want to permanently delete your account?')) {
+                const confirmation = prompt('Type "DELETE" to confirm account deletion:');
+                if (confirmation === 'DELETE') {
+                    alert('Account deletion feature will be implemented soon.');
+                } else {
+                    alert('Account deletion cancelled.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

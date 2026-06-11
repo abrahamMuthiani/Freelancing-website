@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Innobridge - Project Proposals</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .proposal-card {
+      transition: all 0.3s ease;
+    }
+    .proposal-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- Header -->
+  <header class="flex justify-between items-center bg-white shadow-md p-4 sticky top-0 z-10">
+    <div>
+      <h1 class="text-2xl font-bold text-[#16a34a]">Project Proposals</h1>
+      <p class="text-sm text-gray-500">Review and manage proposals for your projects</p>
+    </div>
+    <div class="flex items-center gap-4">
+      <input id="searchInput" type="text" placeholder="Search proposals..." class="px-4 py-2 border rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-[#16a34a]">
+      <button onclick="goBack()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+        ← Back
+      </button>
+      <button id="logoutBtn" class="px-4 py-2 bg-[#16a34a] text-white rounded-lg hover:bg-[#15803d] transition">
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="p-6 max-w-7xl mx-auto">
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white p-4 rounded-lg shadow">
+        <div class="text-sm text-gray-500">Total Proposals</div>
+        <div id="statTotal" class="text-2xl font-bold text-gray-800">0</div>
+      </div>
+      <div class="bg-white p-4 rounded-lg shadow">
+        <div class="text-sm text-gray-500">Pending Review</div>
+        <div id="statPending" class="text-2xl font-bold text-yellow-600">0</div>
+      </div>
+      <div class="bg-white p-4 rounded-lg shadow">
+        <div class="text-sm text-gray-500">Accepted</div>
+        <div id="statAccepted" class="text-2xl font-bold text-green-600">0</div>
+      </div>
+      <div class="bg-white p-4 rounded-lg shadow">
+        <div class="text-sm text-gray-500">Rejected</div>
+        <div id="statRejected" class="text-2xl font-bold text-red-600">0</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="mb-6 flex flex-wrap gap-4 items-center bg-white p-4 rounded-lg shadow">
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+        <select id="filterStatus" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#16a34a]">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="accepted">Accepted</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Project</label>
+        <select id="filterProject" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#16a34a]">
+          <option value="">All Projects</option>
+          <!-- Populated dynamically -->
+        </select>
+      </div>
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+        <select id="sortBy" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#16a34a]">
+          <option value="date-desc">Newest First</option>
+          <option value="date-asc">Oldest First</option>
+          <option value="bid-asc">Lowest Bid</option>
+          <option value="bid-desc">Highest Bid</option>
+        </select>
+      </div>
+      <div class="pt-6">
+        <button onclick="resetFilters()" class="px-4 py-2 border rounded-lg hover:bg-gray-50 transition">
+          Reset Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#16a34a]"></div>
+      <p class="mt-4 text-gray-600">Loading proposals...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-12 bg-white rounded-lg shadow">
+      <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <h3 class="text-xl font-semibold text-gray-700 mb-2">No Proposals Yet</h3>
+      <p class="text-gray-500">When freelancers submit proposals for your projects, they'll appear here.</p>
+    </div>
+
+    <!-- Proposals List -->
+    <div id="proposalsList" class="space-y-4">
+      <!-- Populated dynamically -->
+    </div>
+
+  </main>
+
+  <!-- Proposal Detail Modal -->
+  <div id="proposalModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b flex items-center justify-between sticky top-0 bg-white">
+        <h2 class="text-xl font-bold">Proposal Details</h2>
+        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div id="modalContent" class="p-6">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000';
+    let currentUser = null;
+    let allProposals = [];
+    let allProjects = [];
+
+    // Get logged-in user
+    function getCurrentUser() {
+      const userData = localStorage.getItem('user');
+      if (!userData) {
+        alert('Please log in first');
+        window.location.href = 'index.html';
+        return null;
+      }
+      return JSON.parse(userData);
+    }
+
+    // Load client's projects
+    async function loadProjects() {
+      try {
+        const res = await fetch(`${API_URL}/api/projects/user/${currentUser._id}`);
+        if (!res.ok) throw new Error('Failed to load projects');
+        allProjects = await res.json();
+        populateProjectFilter();
+      } catch (err) {
+        console.error('Error loading projects:', err);
+      }
+    }
+
+    // Load proposals for client's projects
+    async function loadProposals() {
+      try {
+        document.getElementById('loadingState').classList.remove('hidden');
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('proposalsList').classList.add('hidden');
+
+        // Fetch all proposals for this client
+        const res = await fetch(`${API_URL}/api/proposals/client/${currentUser._id}`);
+        if (!res.ok) throw new Error('Failed to load proposals');
+        
+        allProposals = await res.json();
+        
+        document.getElementById('loadingState').classList.add('hidden');
+        
+        if (allProposals.length === 0) {
+          document.getElementById('emptyState').classList.remove('hidden');
+        } else {
+          document.getElementById('proposalsList').classList.remove('hidden');
+          renderProposals();
+        }
+
+        updateStats();
+      } catch (err) {
+        console.error('Error loading proposals:', err);
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('emptyState').classList.remove('hidden');
+      }
+    }
+
+    // Populate project filter dropdown
+    function populateProjectFilter() {
+      const filterProject = document.getElementById('filterProject');
+      filterProject.innerHTML = '<option value="">All Projects</option>';
+      
+      allProjects.forEach(project => {
+        const option = document.createElement('option');
+        option.value = project._id;
+        option.textContent = project.title;
+        filterProject.appendChild(option);
+      });
+    }
+
+    // Update statistics
+    function updateStats() {
+      document.getElementById('statTotal').textContent = allProposals.length;
+      document.getElementById('statPending').textContent = allProposals.filter(p => p.status === 'pending').length;
+      document.getElementById('statAccepted').textContent = allProposals.filter(p => p.status === 'accepted').length;
+      document.getElementById('statRejected').textContent = allProposals.filter(p => p.status === 'rejected').length;
+    }
+
+    // Render proposals
+    function renderProposals() {
+      const container = document.getElementById('proposalsList');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('filterStatus').value;
+      const projectFilter = document.getElementById('filterProject').value;
+      const sortBy = document.getElementById('sortBy').value;
+
+      // Filter proposals
+      let filtered = allProposals.filter(proposal => {
+        const matchesSearch = !searchTerm || 
+          proposal.freelancerId?.firstName?.toLowerCase().includes(searchTerm) ||
+          proposal.freelancerId?.lastName?.toLowerCase().includes(searchTerm) ||
+          proposal.projectId?.title?.toLowerCase().includes(searchTerm);
+        
+        const matchesStatus = !statusFilter || proposal.status === statusFilter;
+        const matchesProject = !projectFilter || proposal.projectId?._id === projectFilter;
+
+        return matchesSearch && matchesStatus && matchesProject;
+      });
+
+      // Sort proposals
+      filtered.sort((a, b) => {
+        switch (sortBy) {
+          case 'date-asc':
+            return new Date(a.createdAt) - new Date(b.createdAt);
+          case 'date-desc':
+            return new Date(b.createdAt) - new Date(a.createdAt);
+          case 'bid-asc':
+            return a.bidAmount - b.bidAmount;
+          case 'bid-desc':
+            return b.bidAmount - a.bidAmount;
+          default:
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+      });
+
+      container.innerHTML = '';
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 bg-white rounded-lg shadow"><p class="text-gray-500">No proposals match your filters.</p></div>';
+        return;
+      }
+
+      filtered.forEach(proposal => {
+        const freelancer = proposal.freelancerId || {};
+        const project = proposal.projectId || {};
+        const initials = `${freelancer.firstName?.[0] || ''}${freelancer.lastName?.[0] || ''}`.toUpperCase() || '??';
+        
+        const statusColors = {
+          pending: 'bg-yellow-100 text-yellow-800',
+          accepted: 'bg-green-100 text-green-800',
+          rejected: 'bg-red-100 text-red-800'
+        };
+
+        const deliveryText = proposal.estimatedDeliveryDays 
+          ? `${proposal.estimatedDeliveryDays} days`
+          : 'Not specified';
+
+        const card = document.createElement('div');
+        card.className = 'proposal-card bg-white p-6 rounded-lg shadow';
+        card.innerHTML = `
+          <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+            <div class="flex items-start gap-4 flex-1">
+              <div class="w-14 h-14 bg-gradient-to-br from-[#16a34a] to-[#15803d] text-white rounded-full flex items-center justify-center font-bold text-lg shrink-0">
+                ${initials}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-bold text-lg text-gray-800">${freelancer.firstName || 'Unknown'} ${freelancer.lastName || ''}</h3>
+                  <span class="px-2 py-1 text-xs rounded-full ${statusColors[proposal.status] || 'bg-gray-100 text-gray-800'}">
+                    ${proposal.status}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">${freelancer.fieldOfWork || 'Freelancer'}</p>
+                <p class="text-sm text-gray-700 font-medium mb-2">Project: <span class="text-[#16a34a]">${project.title || 'Unknown Project'}</span></p>
+                <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                  <div class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="font-semibold">$${proposal.bidAmount || 0}</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>${deliveryText}</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>${new Date(proposal.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 md:ml-4">
+              <button onclick="viewProposal('${proposal._id}')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
+                View Details
+              </button>
+              ${proposal.status === 'pending' ? `
+                <button onclick="acceptProposal('${proposal._id}')" class="px-4 py-2 bg-[#16a34a] text-white rounded-lg hover:bg-[#15803d] transition whitespace-nowrap">
+                  Accept
+                </button>
+                <button onclick="rejectProposal('${proposal._id}')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition whitespace-nowrap">
+                  Reject
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // View proposal details
+    function viewProposal(proposalId) {
+      const proposal = allProposals.find(p => p._id === proposalId);
+      if (!proposal) return;
+
+      const freelancer = proposal.freelancerId || {};
+      const project = proposal.projectId || {};
+      
+      const modalContent = document.getElementById('modalContent');
+      modalContent.innerHTML = `
+        <div class="space-y-6">
+          <div>
+            <h3 class="font-semibold text-gray-700 mb-2">Freelancer Information</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p><strong>Name:</strong> ${freelancer.firstName || ''} ${freelancer.lastName || ''}</p>
+              <p><strong>Email:</strong> ${freelancer.email || 'N/A'}</p>
+              <p><strong>Field:</strong> ${freelancer.fieldOfWork || 'N/A'}</p>
+              <p><strong>Experience:</strong> ${freelancer.experienceLevel || 'N/A'}</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-700 mb-2">Project</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p><strong>Title:</strong> ${project.title || 'N/A'}</p>
+              <p><strong>Budget:</strong> $${project.budget || 0}</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-700 mb-2">Proposal Details</h3>
+            <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+              <p><strong>Bid Amount:</strong> $${proposal.bidAmount || 0}</p>
+              <p><strong>Estimated Delivery:</strong> ${proposal.estimatedDeliveryDays || 'N/A'} days</p>
+              <p><strong>Status:</strong> <span class="capitalize font-semibold">${proposal.status}</span></p>
+              <p><strong>Submitted:</strong> ${new Date(proposal.createdAt).toLocaleString()}</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-700 mb-2">Cover Letter</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-gray-700 whitespace-pre-wrap">${proposal.coverLetter || 'No cover letter provided.'}</p>
+            </div>
+          </div>
+
+          ${proposal.status === 'pending' ? `
+            <div class="flex gap-3 pt-4 border-t">
+              <button onclick="acceptProposal('${proposal._id}')" class="flex-1 px-4 py-2 bg-[#16a34a] text-white rounded-lg hover:bg-[#15803d] transition">
+                Accept Proposal
+              </button>
+              <button onclick="rejectProposal('${proposal._id}')" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                Reject Proposal
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      document.getElementById('proposalModal').classList.remove('hidden');
+      document.getElementById('proposalModal').classList.add('flex');
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('proposalModal').classList.add('hidden');
+      document.getElementById('proposalModal').classList.remove('flex');
+    }
+
+    // Accept proposal
+    async function acceptProposal(proposalId) {
+      if (!confirm('Are you sure you want to accept this proposal?')) return;
+
+      try {
+        const res = await fetch(`${API_URL}/api/proposals/${proposalId}/accept`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!res.ok) throw new Error('Failed to accept proposal');
+
+        alert(' Proposal accepted successfully!');
+        closeModal();
+        await loadProposals();
+      } catch (err) {
+        console.error('Error accepting proposal:', err);
+        alert(' Failed to accept proposal. Please try again.');
+      }
+    }
+
+    // Reject proposal
+    async function rejectProposal(proposalId) {
+      const reason = prompt('Please provide a reason for rejection (optional):');
+      
+      try {
+        const res = await fetch(`${API_URL}/api/proposals/${proposalId}/reject`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+
+        if (!res.ok) throw new Error('Failed to reject proposal');
+
+        alert(' Proposal rejected');
+        closeModal();
+        await loadProposals();
+      } catch (err) {
+        console.error('Error rejecting proposal:', err);
+        alert(' Failed to reject proposal. Please try again.');
+      }
+    }
+
+    // Reset filters
+    function resetFilters() {
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('filterProject').value = '';
+      document.getElementById('sortBy').value = 'date-desc';
+      document.getElementById('searchInput').value = '';
+      renderProposals();
+    }
+
+    // Go back
+    function goBack() {
+      window.history.back();
+    }
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('user');
+      window.location.href = 'index.html';
+    });
+
+    // Event listeners
+    document.getElementById('searchInput').addEventListener('input', renderProposals);
+    document.getElementById('filterStatus').addEventListener('change', renderProposals);
+    document.getElementById('filterProject').addEventListener('change', renderProposals);
+    document.getElementById('sortBy').addEventListener('change', renderProposals);
+
+    // Initialize
+    async function init() {
+      currentUser = getCurrentUser();
+      if (!currentUser) return;
+
+      await loadProjects();
+      await loadProposals();
+    }
+
+    init();
+  </script>
+
+</body>
+</html>

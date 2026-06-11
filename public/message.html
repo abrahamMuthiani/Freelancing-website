@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - InnoBridge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="messages.css">
+    <link rel="script" href="messages.js">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-container">
+                    <a href="index.html" class="logo">InnoBridge</a>
+                </div>
+                <nav class="nav-links">
+                    <a href="index.html" class="nav-link">Dashboard</a>
+                    <a href="#" class="nav-link active">Messages</a>
+                    <a href="#" class="nav-link">Projects</a>
+                </nav>
+                <div class="auth-buttons">
+                    <div class="user-menu">
+                        <div class="avatar"><i class="ri-user-line"></i></div>
+                        <span>John Doe</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Messages Layout -->
+    <div class="messages-container">
+        <!-- Sidebar -->
+        <aside class="messages-sidebar">
+            <div class="sidebar-header">
+                <h2>Messages</h2>
+                <div class="message-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="unread">Unread</button>
+                    <button class="filter-btn" data-filter="archived">Archived</button>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <div class="search-input-container">
+                    <i class="ri-search-line search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search conversations...">
+                </div>
+            </div>
+
+            <div class="conversations-list" id="conversationsList">
+                <!-- Conversations will be populated here -->
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main">
+            <!-- Welcome Screen -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <i class="ri-message-3-line welcome-icon"></i>
+                    <h3>Welcome to Messages</h3>
+                    <p>Select a conversation to start messaging</p>
+                </div>
+            </div>
+
+            <!-- Chat Window -->
+            <div class="chat-window" id="chatWindow" style="display: none;">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-user-info">
+                        <div class="avatar">
+                            <img id="chatUserAvatar" src="" alt="User" />
+                        </div>
+                        <div class="user-details">
+                            <h4 id="chatUserName"></h4>
+                            <span class="project-title" id="chatProjectTitle"></span>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="action-btn" id="projectDetailsBtn">
+                            <i class="ri-information-line"></i>
+                        </button>
+                        <button class="action-btn" id="moreOptionsBtn">
+                            <i class="ri-more-2-line"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Container -->
+                <div class="messages-container-chat" id="messagesContainer">
+                    <!-- Messages will be populated here -->
+                </div>
+
+                <!-- Message Input -->
+                <div class="message-input-container">
+                    <div class="input-actions">
+                        <button class="input-action-btn" id="attachFileBtn">
+                            <i class="ri-attachment-2"></i>
+                        </button>
+                        <button class="input-action-btn" id="emojiBtn">
+                            <i class="ri-emotion-line"></i>
+                        </button>
+                    </div>
+                    <div class="message-input-wrapper">
+                        <textarea id="messageInput" placeholder="Type your message..." rows="1"></textarea>
+                        <button class="send-btn" id="sendBtn">
+                            <i class="ri-send-plane-fill"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Project Context Sidebar -->
+        <aside class="project-sidebar" id="projectSidebar">
+            <div class="project-sidebar-header">
+                <h3>Project Details</h3>
+                <button class="close-sidebar-btn" id="closeSidebarBtn">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+            <div class="project-details" id="projectDetails">
+                <!-- Project details will be populated here -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- File Upload Modal -->
+    <div class="modal" id="fileUploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Attach File</h3>
+                <button class="modal-close" id="closeFileModal">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="file-upload-area" id="fileUploadArea">
+                    <i class="ri-upload-cloud-2-line"></i>
+                    <p>Drop files here or click to browse</p>
+                    <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif">
+                </div>
+                <div class="upload-progress" id="uploadProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <span class="progress-text">Uploading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="messages.js"></script>
+</body>
+</html>

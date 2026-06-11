@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Your Project - Innobridge</title>
+    <link rel="stylesheet" href="post-project.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1>Post Your Project</h1>
+                <p>Share your project details and connect with skilled experts on Innobridge. Get quality proposals from verified professionals.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <div class="container">
+        <div class="form-container">
+            <form id="projectForm">
+
+                <!-- Project Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Project Information
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="title" class="form-label">Project Title *</label>
+                            <input type="text" id="title" class="form-input" placeholder="Enter a clear, descriptive project title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description" class="form-label">Project Description *</label>
+                            <textarea id="description" class="form-textarea" placeholder="Describe your project in detail including scope, objectives, deliverables, and any specific requirements..." required></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget & Timeline -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                            Budget & Timeline
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Project Budget *</label>
+                                <div class="currency-budget-group">
+                                    <select id="currency" class="form-select currency-select">
+                                        <option value="USD">USD</option>
+                                        <option value="KES">KES</option>
+                                        <option value="EUR">EUR</option>
+                                        <option value="GBP">GBP</option>
+                                    </select>
+                                    <input type="number" id="budget" class="form-input budget-input" placeholder="Enter budget amount" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="deadline" class="form-label">Project Deadline *</label>
+                                <input type="date" id="deadline" class="form-input" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Required Skills -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                            </svg>
+                            Required Skills
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="skillCategory" class="form-label">Skill Category *</label>
+                            <select id="skillCategory" class="form-select" required>
+                                <option value="">Select a skill category</option>
+                                <option value="technical">Technical</option>
+                                <option value="design">Design</option>
+                                <option value="writing">Writing</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="business">Business</option>
+                            </select>
+                        </div>
+                        <div id="specificSkillsContainer" class="form-group hidden">
+                            <label class="form-label">Specific Skills Required</label>
+                            <div id="skillsGrid" class="skills-grid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Files -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            Project Files
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" id="fileInput" class="file-input" multiple accept=".pdf,.doc,.docx,.zip,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.txt,.csv,.xlsx">
+                            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <h3 class="upload-title">Drop files here or click to upload</h3>
+                            <p class="upload-subtitle">Support for PDF, DOCX, ZIP, PPTX, JPG, PNG and more</p>
+                        </div>
+                        <div id="fileList" class="file-list hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="submit-container">
+                    <button type="submit" id="submitBtn" class="submit-btn">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Post Project
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const formContainer = document.querySelector('.form-container');
+    formContainer.style.display = 'none';
+
+    if (!storedUser || !storedUser._id) {
+        alert('⚠️ Please log in to continue.');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    try {
+        const res = await fetch(`http://localhost:3000/api/user/${storedUser._id}`);
+        const data = await res.json();
+        if (!res.ok || !data) throw new Error('Could not fetch user data');
+
+        if (data.role !== 'client') {
+            alert('🚫 Access denied. Only clients can post projects.');
+            window.location.href = 'user-dashboard.html';
+            return;
+        }
+
+        formContainer.style.display = 'block';
+
+    } catch (err) {
+        console.error(err);
+        alert(' Could not verify user role. Please log in again.');
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+    }
+});
+
+const skillCategories = {
+    technical: ['Web Development', 'Mobile Development', 'Data Science', 'AI/ML', 'DevOps', 'Cybersecurity'],
+    design: ['UI/UX Design', 'Graphic Design', '3D Modeling', 'Animation', 'Branding', 'Web Design'],
+    writing: ['Content Writing', 'Technical Writing', 'Copywriting', 'Translation', 'Editing', 'SEO Writing'],
+    marketing: ['Digital Marketing', 'Social Media', 'SEO/SEM', 'Email Marketing', 'Content Strategy', 'Analytics'],
+    business: ['Business Strategy', 'Project Management', 'Financial Analysis', 'Market Research', 'Consulting', 'Operations']
+};
+
+let selectedFiles = [];
+let selectedSkills = [];
+
+const form = document.getElementById('projectForm');
+const skillCategorySelect = document.getElementById('skillCategory');
+const specificSkillsContainer = document.getElementById('specificSkillsContainer');
+const skillsGrid = document.getElementById('skillsGrid');
+const fileInput = document.getElementById('fileInput');
+const fileList = document.getElementById('fileList');
+const submitBtn = document.getElementById('submitBtn');
+const toast = document.getElementById('toast');
+const uploadArea = document.getElementById('uploadArea');
+
+skillCategorySelect.addEventListener('change', () => {
+    const category = skillCategorySelect.value;
+    if (category && skillCategories[category]) {
+        specificSkillsContainer.classList.remove('hidden');
+        renderSkills(skillCategories[category]);
+    } else {
+        specificSkillsContainer.classList.add('hidden');
+        selectedSkills = [];
+    }
+});
+
+function renderSkills(skills) {
+    skillsGrid.innerHTML = '';
+    selectedSkills = [];
+    skills.forEach(skill => {
+        const id = `skill-${skill.replace(/\s+/g, '-')}`;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'skill-item';
+        wrapper.innerHTML = `<input type="checkbox" id="${id}" value="${skill}" class="skill-checkbox"><label for="${id}" class="skill-label">${skill}</label>`;
+        skillsGrid.appendChild(wrapper);
+        wrapper.querySelector('input').addEventListener('change', function () {
+            if (this.checked && !selectedSkills.includes(skill)) selectedSkills.push(skill);
+            else selectedSkills = selectedSkills.filter(s => s !== skill);
+        });
+    });
+}
+
+// Drag & Drop for file uploads
+uploadArea.addEventListener('click', () => fileInput.click());
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    addFiles([...e.dataTransfer.files]);
+});
+
+fileInput.addEventListener('change', (e) => addFiles([...e.target.files]));
+
+function addFiles(files) {
+    selectedFiles = [...selectedFiles, ...files];
+    renderFileList();
+}
+
+function renderFileList() {
+    fileList.classList.toggle('hidden', selectedFiles.length === 0);
+    fileList.innerHTML = selectedFiles.map((file, index) => `
+        <div class="file-item">
+            <div class="file-info">
+                <h4>${file.name}</h4>
+                <p>${(file.size / 1024).toFixed(2)} KB</p>
+            </div>
+            <button type="button" onclick="removeFile(${index})"></button>
+        </div>
+    `).join('');
+}
+
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    renderFileList();
+}
+
+document.getElementById('deadline').min = new Date().toISOString().split('T')[0];
+
+form.addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (!storedUser || !storedUser._id) {
+        alert('⚠️ Please log in first.');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const currency = document.getElementById('currency').value;
+    const budget = document.getElementById('budget').value.trim();
+    const deadline = document.getElementById('deadline').value;
+
+    if (!title || !description || !currency || !budget || !deadline || !skillCategorySelect.value) {
+        alert("⚠️ Please fill in all required fields.");
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    let attachmentIds = [];
+    for (const file of selectedFiles) {
+        const uploadForm = new FormData();
+        uploadForm.append('file', file);
+        try {
+            const res = await fetch('http://localhost:3001/upload/project', { method: 'POST', body: uploadForm });
+            const result = await res.json();
+            if (res.ok && result.fileId) attachmentIds.push(result.fileId);
+            else { alert(` Failed to upload: ${file.name}`); submitBtn.disabled = false; return; }
+        } catch (err) { alert(` Upload error for: ${file.name}`); submitBtn.disabled = false; return; }
+    }
+
+    const projectData = {
+        title,
+        description,
+        currency,
+        budget: Number(budget),
+        deadline,
+        skillCategory: skillCategorySelect.value,
+        specificSkills: Array.isArray(selectedSkills) ? selectedSkills : selectedSkills ? [selectedSkills] : [],
+        attachments: Array.isArray(attachmentIds) ? attachmentIds : attachmentIds ? [attachmentIds] : [],
+        clientId: storedUser._id // <-- corrected to use MongoDB _id
+    };
+
+    try {
+        const res = await fetch('http://localhost:3000/api/post-project', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json' },
+            body: JSON.stringify(projectData)
+        });
+        const result = await res.json();
+        if (res.ok) showToast(" Project posted successfully!");
+        else alert(result.message || ' Failed to post project.');
+    } catch (err) {
+        alert(' Network or server error occurred.');
+    }
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Post Project';
+    form.reset();
+    selectedFiles = [];
+    selectedSkills = [];
+    renderFileList();
+    specificSkillsContainer.classList.add('hidden');
+});
+
+function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); toast.textContent = ''; }, 4000);
+}
+</script>
+</body>
+</html>

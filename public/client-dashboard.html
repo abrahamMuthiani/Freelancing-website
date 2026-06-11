@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Innobridge - Client Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #0d9488;
+      --teal-dark: #0a7c71;
+      --teal-light: #e6f4f3;
+      --teal-mid: #b2dfdb;
+      --white: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --red: #ef4444;
+      --green: #16a34a;
+      --yellow: #d97706;
+      --sidebar-w: 248px;
+      --font: 'Inter', sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ───────────────────────────────── */
+    #sidebar {
+      position: fixed;
+      inset-y: 0;
+      left: 0;
+      width: var(--sidebar-w);
+      background: var(--white);
+      border-right: 1px solid var(--gray-200);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform 0.25s ease;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--teal);
+      color: var(--white);
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--teal);
+      letter-spacing: -0.3px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-top: 1px;
+    }
+
+    #sidebar-close {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray-500);
+      font-size: 20px;
+      line-height: 1;
+      padding: 4px;
+    }
+
+    nav {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-700);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    nav a .material-icons {
+      font-size: 18px;
+      color: var(--gray-400);
+      transition: color 0.15s;
+    }
+
+    nav a:hover {
+      background: var(--teal-light);
+      color: var(--teal);
+    }
+
+    nav a:hover .material-icons {
+      color: var(--teal);
+    }
+
+    nav a.active {
+      background: var(--teal-light);
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    nav a.active .material-icons {
+      color: var(--teal);
+    }
+
+    .sidebar-footer {
+      padding: 12px;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    #logoutBtn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: none;
+      border: none;
+      color: var(--red);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: var(--font);
+    }
+
+    #logoutBtn:hover { background: #fef2f2; }
+
+    #logoutBtn .material-icons { font-size: 18px; }
+
+    #logoutSpinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #fca5a5;
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── MAIN LAYOUT ───────────────────────────── */
+    #main {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOPBAR ────────────────────────────────── */
+    #topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 28px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    #sidebar-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray-700);
+      padding: 4px;
+    }
+
+    #sidebar-toggle .material-icons { font-size: 22px; }
+
+    #searchInput {
+      height: 36px;
+      padding: 0 14px 0 36px;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-family: var(--font);
+      color: var(--gray-700);
+      background: var(--gray-50) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239ca3af' viewBox='0 0 24 24'%3E%3Cpath d='M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z' stroke='%239ca3af' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 12px center;
+      width: 260px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    #searchInput:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(13,148,136,0.12);
+      background-color: var(--white);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    #notificationBtn {
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      color: var(--gray-500);
+      transition: color 0.15s;
+    }
+
+    #notificationBtn:hover { color: var(--teal); }
+    #notificationBtn .material-icons { font-size: 22px; }
+
+    #notificationBadge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: var(--red);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 10px;
+      min-width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 3px;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #userAvatar {
+      width: 36px;
+      height: 36px;
+      background: var(--teal);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    #userName {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-900);
+      line-height: 1.3;
+    }
+
+    #userRole {
+      font-size: 12px;
+      color: var(--gray-400);
+    }
+
+    /* ── PAGE CONTENT ──────────────────────────── */
+    #content {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      flex: 1;
+    }
+
+    /* ── WELCOME BANNER ────────────────────────── */
+    .welcome-banner {
+      background: var(--teal);
+      border-radius: 12px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .welcome-banner h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.3px;
+    }
+
+    .welcome-banner p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.82);
+      margin-top: 4px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--white);
+      color: var(--teal);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, box-shadow 0.15s;
+      font-family: var(--font);
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      background: var(--teal-light);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-primary .material-icons { font-size: 16px; }
+
+    /* ── STAT CARDS ────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 20px;
+      transition: box-shadow 0.2s;
+    }
+
+    .stat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+
+    .stat-label {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--teal);
+      margin: 6px 0 4px;
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+    }
+
+    .stat-change {
+      font-size: 12.5px;
+      color: var(--green);
+    }
+
+    .stat-change.neutral { color: var(--yellow); }
+
+    .loading-ring {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--teal-mid);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* ── ANALYTICS + FREELANCERS ───────────────── */
+    .mid-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title .material-icons {
+      font-size: 18px;
+      color: var(--teal);
+    }
+
+    /* Freelancer list */
+    .freelancer-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 8px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+
+    .freelancer-item:hover { background: var(--gray-50); }
+
+    .freelancer-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .fl-avatar {
+      width: 38px;
+      height: 38px;
+      background: var(--teal);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .fl-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .fl-cat {
+      font-size: 12px;
+      color: var(--gray-400);
+    }
+
+    .btn-contact {
+      background: var(--teal);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: var(--font);
+    }
+
+    .btn-contact:hover { background: var(--teal-dark); }
+
+    /* ── RECENT PROJECTS TABLE ─────────────────── */
+    .table-card { overflow: hidden; }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    thead th {
+      background: var(--gray-50);
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--gray-100);
+      transition: background 0.12s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--gray-50); }
+
+    tbody td {
+      padding: 13px 16px;
+      font-size: 13.5px;
+      color: var(--gray-700);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-yellow { background: #fef9c3; color: #a16207; }
+    .badge-gray { background: var(--gray-100); color: var(--gray-500); }
+    .badge-blue { background: #dbeafe; color: #1d4ed8; }
+
+    .btn-view {
+      background: none;
+      border: none;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      padding: 0;
+      transition: color 0.15s;
+    }
+
+    .btn-view:hover { color: var(--teal-dark); text-decoration: underline; }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray-400);
+      font-size: 14px;
+    }
+
+    .empty-state a {
+      color: var(--teal);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .empty-state a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ────────────────────────────── */
+    @media (max-width: 1100px) {
+      .mid-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #sidebar-close { display: block; }
+      #sidebar-toggle { display: block; }
+      #main { margin-left: 0; }
+      #content { padding: 16px; }
+      #topbar { padding: 0 16px; }
+      #searchInput { width: 180px; }
+      .welcome-banner { padding: 18px 20px; }
+      .welcome-banner h2 { font-size: 18px; }
+    }
+
+    @media (max-width: 520px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      #searchInput { width: 140px; }
+      #userName, #userRole { display: none; }
+    }
+
+    @media (max-width: 380px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    /* overlay for mobile sidebar */
+    #sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 99;
+    }
+
+    #sidebar-overlay.visible { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div id="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <div class="brand-icon">I</div>
+        <div>
+          <div class="brand-name">InnoBridge</div>
+          <div class="brand-sub">Client Dashboard</div>
+        </div>
+      </div>
+      <button id="sidebar-close" aria-label="Close menu">
+        <span class="material-icons" style="font-size:20px;color:var(--gray-500)">close</span>
+      </button>
+    </div>
+
+    <nav>
+      <a href="client-dashboard.html" class="active">
+        <span class="material-icons">dashboard</span>
+        Dashboard
+      </a>
+      <a href="post-project.html">
+        <span class="material-icons">add_circle_outline</span>
+        Post New Project
+      </a>
+      <a href="my-project.html">
+        <span class="material-icons">folder_open</span>
+        My Projects
+      </a>
+      <a href="proposals.html">
+        <span class="material-icons">description</span>
+        Proposals
+      </a>
+    
+      
+    </nav>
+
+    <div class="sidebar-footer">
+      <button id="logoutBtn">
+        <span class="material-icons">logout</span>
+        <span id="logoutText">Logout</span>
+        <div id="logoutSpinner"></div>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div id="main">
+    <!-- Topbar -->
+    <header id="topbar">
+      <div class="topbar-left">
+        <button id="sidebar-toggle" aria-label="Open menu">
+          <span class="material-icons">menu</span>
+        </button>
+        <input type="text" id="searchInput" placeholder="Search projects, freelancers...">
+      </div>
+      <div class="topbar-right">
+        <button id="notificationBtn" aria-label="Notifications">
+          <span class="material-icons">notifications_none</span>
+          <span id="notificationBadge">0</span>
+        </button>
+        <div class="user-chip">
+          <div id="userAvatar">?</div>
+          <div>
+            <div id="userName">Loading...</div>
+            <div id="userRole">Client</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <div id="content">
+
+      <!-- Welcome banner -->
+      <div class="welcome-banner">
+        <div>
+          <h2 id="greeting">Hello!</h2>
+          <p>Ready to find the perfect expert for your next project?</p>
+        </div>
+        <button class="btn-primary" onclick="window.location.href='post-project.html'">
+          <span class="material-icons">add</span>
+          Post Project
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Projects Posted</div>
+          <div class="stat-value" id="projectsPosted"><div class="loading-ring"></div></div>
+          <div class="stat-change" id="projectsPostedChange">Loading...</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Projects Completed</div>
+          <div class="stat-value" id="projectsCompleted"><div class="loading-ring"></div></div>
+          <div class="stat-change" id="projectsCompletedChange">Loading...</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Proposals</div>
+          <div class="stat-value" id="pendingProposals"><div class="loading-ring"></div></div>
+          <div class="stat-change neutral" id="pendingProposalsChange">Loading...</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Freelancers Worked With</div>
+          <div class="stat-value" id="freelancersWorkedWith"><div class="loading-ring"></div></div>
+          <div class="stat-change" id="freelancersWorkedWithChange">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Analytics + Top Freelancers -->
+      <div class="mid-grid">
+        <div class="card">
+          <div class="card-title">
+            <span class="material-icons">bar_chart</span>
+            Project Analytics
+          </div>
+          <canvas id="projectChart"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-title">
+            <span class="material-icons">star_outline</span>
+            Top Freelancers
+          </div>
+          <div id="topFreelancersContainer">
+            <div style="display:flex;justify-content:center;padding:24px 0;">
+              <div class="loading-ring"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Projects -->
+      <div class="card table-card">
+        <div class="card-title">
+          <span class="material-icons">list_alt</span>
+          Recent Projects
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Freelancer</th>
+                <th>Deadline</th>
+                <th>Budget</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recentProjectsBody">
+              <tr>
+                <td colspan="6" style="text-align:center;padding:32px;">
+                  <div class="loading-ring" style="margin:auto;"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+
+  <script>
+    let projectChart = null;
+    const API_BASE_URL = 'http://localhost:3000/api';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeDashboard();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const sidebar = document.getElementById('sidebar');
+      const sidebarClose = document.getElementById('sidebar-close');
+      const overlay = document.getElementById('sidebar-overlay');
+
+      function openSidebar() {
+        sidebar.classList.add('open');
+        overlay.classList.add('visible');
+      }
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+      }
+
+      if (sidebarToggle) sidebarToggle.addEventListener('click', openSidebar);
+      if (sidebarClose) sidebarClose.addEventListener('click', closeSidebar);
+      if (overlay) overlay.addEventListener('click', closeSidebar);
+
+      document.getElementById('searchInput').addEventListener('input', debounce(handleSearch, 500));
+      document.getElementById('notificationBtn').addEventListener('click', () => {
+        alert('Notifications feature coming soon!');
+      });
+    }
+
+    async function initializeDashboard() {
+      const user = getUserFromStorage();
+      if (!user || !user._id) {
+        showError('User not logged in. Redirecting...');
+        setTimeout(() => window.location.href = 'index.html', 2000);
+        return;
+      }
+      updateUserInfo(user);
+      await Promise.all([
+        loadUserGreeting(user),
+        loadStats(user._id),
+        loadTopFreelancers(),
+        loadRecentProjects(user._id),
+        initializeChart()
+      ]);
+    }
+
+    function getUserFromStorage() {
+      try {
+        const userStr = localStorage.getItem('user');
+        return userStr ? JSON.parse(userStr) : null;
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        return null;
+      }
+    }
+
+    function updateUserInfo(user) {
+      const userName = document.getElementById('userName');
+      const userRole = document.getElementById('userRole');
+      const userAvatar = document.getElementById('userAvatar');
+
+      if (user.firstName) {
+        const fullName = user.firstName + (user.lastName ? ' ' + user.lastName : '');
+        userName.textContent = fullName;
+        const initials = (user.firstName[0] + (user.lastName ? user.lastName[0] : '')).toUpperCase();
+        userAvatar.textContent = initials;
+      }
+
+      if (user.role) {
+        userRole.textContent = capitalizeFirstLetter(user.role) + ' Client';
+      }
+    }
+
+    async function loadUserGreeting(user) {
+      const greetingEl = document.getElementById('greeting');
+      try {
+        const response = await fetch(`${API_BASE_URL}/user`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+          const apiUser = await response.json();
+          greetingEl.textContent = apiUser.firstName ? `Hello, ${apiUser.firstName}!` : 'Hello!';
+        } else {
+          greetingEl.textContent = user.firstName ? `Hello, ${user.firstName}!` : 'Hello!';
+        }
+      } catch (error) {
+        greetingEl.textContent = user.firstName ? `Hello, ${user.firstName}!` : 'Hello!';
+      }
+    }
+
+    async function loadStats(userId) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/client/stats/${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch stats');
+        const data = await response.json();
+
+        animateValue('projectsPosted', 0, data.projectsPosted || 0, 1000);
+        animateValue('projectsCompleted', 0, data.projectsCompleted || 0, 1000);
+        animateValue('pendingProposals', 0, data.pendingProposals || 0, 1000);
+        animateValue('freelancersWorkedWith', 0, data.freelancersWorkedWith || 0, 1000);
+
+        document.getElementById('projectsPostedChange').textContent = '+3 this month';
+        document.getElementById('projectsCompletedChange').textContent = '+2 this month';
+        document.getElementById('pendingProposalsChange').textContent = '3 new today';
+        document.getElementById('freelancersWorkedWithChange').textContent = '+1 this month';
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        ['projectsPosted', 'projectsCompleted', 'pendingProposals', 'freelancersWorkedWith'].forEach(id => {
+          document.getElementById(id).textContent = '0';
+        });
+        ['projectsPostedChange', 'projectsCompletedChange', 'pendingProposalsChange', 'freelancersWorkedWithChange'].forEach(id => {
+          document.getElementById(id).textContent = 'No data';
+        });
+      }
+    }
+
+    function animateValue(id, start, end, duration) {
+      const element = document.getElementById(id);
+      const range = end - start;
+      const increment = range / (duration / 16);
+      let current = start;
+      const timer = setInterval(() => {
+        current += increment;
+        if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+          current = end;
+          clearInterval(timer);
+        }
+        element.textContent = Math.floor(current);
+      }, 16);
+    }
+
+    async function loadTopFreelancers() {
+      const container = document.getElementById('topFreelancersContainer');
+      try {
+        const response = await fetch(`${API_BASE_URL}/top-freelancers`);
+        if (!response.ok) throw new Error('Failed to fetch freelancers');
+        const freelancers = await response.json();
+        container.innerHTML = '';
+
+        if (freelancers.length === 0) {
+          container.innerHTML = `<p class="empty-state">No freelancers available yet.</p>`;
+          return;
+        }
+
+        freelancers.slice(0, 5).forEach(freelancer => {
+          const initials = freelancer.fullName
+            .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+          const category = freelancer.mainCategory || 'General';
+
+          const div = document.createElement('div');
+          div.className = 'freelancer-item';
+          div.innerHTML = `
+            <div class="freelancer-left">
+              <div class="fl-avatar">${initials}</div>
+              <div>
+                <div class="fl-name">${escapeHtml(freelancer.fullName)}</div>
+                <div class="fl-cat">${escapeHtml(category)}</div>
+              </div>
+            </div>
+            <button class="btn-contact" onclick="contactFreelancer('${freelancer._id}')">Contact</button>
+          `;
+          container.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Error loading freelancers:', error);
+        container.innerHTML = `<p class="empty-state" style="color:#ef4444;">No freelancer has worked on more than 5 projects</p>`;
+      }
+    }
+
+    async function loadRecentProjects(userId) {
+      const tbody = document.getElementById('recentProjectsBody');
+      try {
+        const response = await fetch(`${API_BASE_URL}/client/projects/${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch projects');
+        const projects = await response.json();
+        tbody.innerHTML = '';
+
+        if (projects.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="empty-state">
+                No recent projects found. <a href="post-project.html">Post your first project!</a>
+              </td>
+            </tr>`;
+          return;
+        }
+
+        projects.slice(0, 10).forEach(project => {
+          const row = document.createElement('tr');
+          const freelancerName = project.freelancerId?.fullName || 'Not assigned';
+          const badgeClass = getStatusBadge(project.status);
+          const statusText = capitalizeFirstLetter(project.status || 'Pending');
+
+          row.innerHTML = `
+            <td>${escapeHtml(project.title)}</td>
+            <td><span class="badge ${badgeClass}">${statusText}</span></td>
+            <td>${escapeHtml(freelancerName)}</td>
+            <td>${formatDate(project.deadline)}</td>
+            <td style="font-weight:600;">$${formatNumber(project.budget || 0)}</td>
+            <td><button class="btn-view" onclick="viewProject('${project._id}')">View</button></td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state" style="color:#ef4444;">
+              Failed to load projects. Please refresh the page.
+            </td>
+          </tr>`;
+      }
+    }
+
+    function initializeChart() {
+      const ctx = document.getElementById('projectChart').getContext('2d');
+      if (projectChart) projectChart.destroy();
+      projectChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [
+            {
+              label: 'Posted',
+              data: [12, 19, 8, 15, 10, 18],
+              backgroundColor: '#0d9488',
+              borderRadius: 4
+            },
+            {
+              label: 'Completed',
+              data: [8, 15, 5, 12, 7, 14],
+              backgroundColor: '#b2dfdb',
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { display: true, position: 'top' } },
+          scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } }
+        }
+      });
+    }
+
+    function handleLogout() {
+      const logoutText = document.getElementById('logoutText');
+      const logoutSpinner = document.getElementById('logoutSpinner');
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.disabled = true;
+      logoutText.textContent = 'Logging out...';
+      logoutSpinner.style.display = 'block';
+      localStorage.removeItem('user');
+      sessionStorage.clear();
+      setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+    }
+
+    function handleSearch(event) {
+      const query = event.target.value.toLowerCase().trim();
+      if (query.length < 2) return;
+      console.log('Searching for:', query);
+    }
+
+    function contactFreelancer(freelancerId) {
+      window.location.href = `freelancer-profile.html?id=${freelancerId}`;
+    }
+
+    function viewProject(projectId) {
+      window.location.href = `project-details.html?id=${projectId}`;
+    }
+
+    function capitalizeFirstLetter(string) {
+      if (!string) return '';
+      return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    }
+
+    function getStatusBadge(status) {
+      const s = (status || '').toLowerCase();
+      if (s === 'completed') return 'badge-green';
+      if (s === 'in progress') return 'badge-yellow';
+      if (s === 'pending') return 'badge-gray';
+      return 'badge-blue';
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function formatNumber(num) {
+      return new Intl.NumberFormat('en-US').format(num);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+      };
+    }
+
+    function showError(message) {
+      console.error(message);
+    }
+  </script>
+</body>
+</html>
