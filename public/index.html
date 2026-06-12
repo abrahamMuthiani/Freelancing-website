@@ -33,7 +33,7 @@
       overflow-x: hidden;
     }
 
-    /* Header */
+    /* ===== HEADER ===== */
     .header {
       position: fixed;
       top: 0;
@@ -61,6 +61,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 1.2rem 0;
+      position: relative;
     }
 
     .logo {
@@ -73,6 +74,7 @@
       -webkit-text-fill-color: transparent;
       text-decoration: none;
       letter-spacing: -0.5px;
+      flex-shrink: 0;
     }
 
     .nav-links {
@@ -140,7 +142,104 @@
       box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
     }
 
-    /* Hero Section */
+    /* Hamburger button */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+      z-index: 1100;
+    }
+
+    .hamburger:hover {
+      background: var(--light-gray);
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--dark);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      transform-origin: center;
+    }
+
+    .hamburger.open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .hamburger.open span:nth-child(2) {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+
+    .hamburger.open span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* Mobile dropdown menu */
+    .mobile-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 1px);
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+      padding: 1.5rem 2rem 2rem;
+      flex-direction: column;
+      gap: 0;
+      z-index: 999;
+      animation: slideDown 0.25s ease;
+    }
+
+    .mobile-menu.open {
+      display: flex;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .mobile-menu .nav-link {
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--light-gray);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mobile-menu .nav-link::after {
+      display: none;
+    }
+
+    .mobile-menu-auth {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .mobile-menu-auth .btn {
+      flex: 1;
+      text-align: center;
+      padding: 0.85rem 1rem;
+    }
+
+    .mobile-menu-auth .btn-login {
+      border: 2px solid rgba(0,0,0,0.12);
+      border-radius: 12px;
+    }
+
+    /* ===== HERO ===== */
     .hero {
       padding: 10rem 0 6rem;
       background: linear-gradient(135deg, #0d9488 0%, #06b6d4 100%);
@@ -214,6 +313,7 @@
       display: flex;
       gap: 1.5rem;
       justify-content: center;
+      flex-wrap: wrap;
       animation: fadeInUp 0.6s ease 0.6s backwards;
     }
 
@@ -253,17 +353,11 @@
     }
 
     @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Stats Section */
+    /* ===== STATS ===== */
     .stats {
       padding: 4rem 0;
       background: var(--light-gray);
@@ -275,9 +369,7 @@
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 3rem;
-      max-width: 1100px;
-      margin: 0 auto;
+      gap: 1.5rem;
     }
 
     .stat-item {
@@ -329,7 +421,7 @@
       font-size: 1rem;
     }
 
-    /* Featured Projects */
+    /* ===== FEATURED PROJECTS ===== */
     .featured {
       padding: 6rem 0;
       background: white;
@@ -414,11 +506,11 @@
       margin-bottom: 1rem;
     }
 
-    .badge-blue { background: rgba(13, 148, 136, 0.1); color: var(--primary); }
-    .badge-green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .badge-blue   { background: rgba(13, 148, 136, 0.1); color: var(--primary); }
+    .badge-green  { background: rgba(16, 185, 129, 0.1); color: #10b981; }
     .badge-purple { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
     .badge-orange { background: rgba(251, 146, 60, 0.1); color: #fb923c; }
-    .badge-teal { background: rgba(6, 182, 212, 0.1); color: #06b6d4; }
+    .badge-teal   { background: rgba(6, 182, 212, 0.1);  color: #06b6d4; }
 
     .project-title {
       font-size: 1.4rem;
@@ -471,6 +563,7 @@
       justify-content: center;
       color: white;
       font-size: 1.2rem;
+      flex-shrink: 0;
     }
 
     .user-name {
@@ -537,7 +630,7 @@
       box-shadow: 0 8px 20px rgba(13, 148, 136, 0.3);
     }
 
-    /* How It Works */
+    /* ===== HOW IT WORKS ===== */
     .how-it-works {
       padding: 6rem 0;
       background: var(--light-gray);
@@ -632,7 +725,7 @@
       box-shadow: 0 15px 40px rgba(13, 148, 136, 0.4);
     }
 
-    /* Categories */
+    /* ===== CATEGORIES ===== */
     .categories {
       padding: 6rem 0;
       background: white;
@@ -716,7 +809,7 @@
       z-index: 1;
     }
 
-    /* Testimonials */
+    /* ===== TESTIMONIALS ===== */
     .testimonials {
       padding: 6rem 0;
       background: var(--light-gray);
@@ -770,6 +863,7 @@
       justify-content: center;
       color: white;
       font-size: 1.5rem;
+      flex-shrink: 0;
     }
 
     .testimonial-user h4 {
@@ -783,7 +877,7 @@
       font-size: 0.9rem;
     }
 
-    /* CTA Section */
+    /* ===== CTA SECTION ===== */
     .cta-section {
       padding: 6rem 0;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -828,6 +922,7 @@
       display: flex;
       gap: 1.5rem;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
     .btn-cta {
@@ -861,7 +956,7 @@
       transform: translateY(-3px);
     }
 
-    /* Footer */
+    /* ===== FOOTER ===== */
     .footer {
       background: var(--dark);
       color: white;
@@ -874,6 +969,7 @@
       gap: 3rem;
       margin-bottom: 3rem;
     }
+
     .footer-logo {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 1.75rem;
@@ -896,6 +992,7 @@
     .footer-socials {
       display: flex;
       gap: 1rem;
+      flex-wrap: wrap;
     }
 
     .footer-socials a {
@@ -948,17 +1045,21 @@
       padding-top: 2rem;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       color: rgba(255, 255, 255, 0.6);
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
     .footer-policy {
       display: flex;
-      gap: 2rem;
+      gap: 1.5rem;
+      flex-wrap: wrap;
     }
 
     .footer-policy a {
       color: rgba(255, 255, 255, 0.6);
       text-decoration: none;
       transition: color 0.3s ease;
+      font-size: 0.9rem;
     }
 
     .footer-policy a:hover {
@@ -973,9 +1074,10 @@
       display: flex;
       justify-content: center;
       gap: 1rem;
+      flex-wrap: wrap;
     }
 
-    /* Loading State */
+    /* ===== LOADING ===== */
     .loading {
       text-align: center;
       padding: 3rem;
@@ -996,48 +1098,184 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Responsive */
+    /* ===== RESPONSIVE: 1024px ===== */
     @media (max-width: 1024px) {
-      .projects-grid { grid-template-columns: repeat(2, 1fr); }
-      .steps-grid { grid-template-columns: 1fr; }
-      .category-grid { grid-template-columns: repeat(2, 1fr); }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .testimonial-grid { grid-template-columns: 1fr; }
+      .projects-grid       { grid-template-columns: repeat(2, 1fr); }
+      .steps-grid          { grid-template-columns: repeat(2, 1fr); }
+      .category-grid       { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid          { grid-template-columns: repeat(2, 1fr); }
+      .testimonial-grid    { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid         { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .hero-title          { font-size: 3.5rem; }
+      .section-title       { font-size: 2.5rem; }
     }
 
+    /* ===== RESPONSIVE: 768px ===== */
     @media (max-width: 768px) {
-      .hero-title { font-size: 2.5rem; }
-      .hero-subtitle { font-size: 1.1rem; }
-      .section-title { font-size: 2rem; }
-      .projects-grid { grid-template-columns: 1fr; }
-      .category-grid { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: 1fr; }
-      .nav-links { display: none; }
-      .hero-buttons { flex-direction: column; }
-      .cta-buttons { flex-direction: column; }
+      .container           { padding: 0 1.25rem; }
+
+      /* Header */
+      .nav-links           { display: none; }
+      .auth-buttons        { display: none; }
+      .hamburger           { display: flex; }
+
+      /* Hero */
+      .hero                { padding: 8rem 0 5rem; }
+      .hero-title          { font-size: 2.4rem; }
+      .hero-subtitle       { font-size: 1.05rem; }
+      .hero-badge          { font-size: 0.82rem; padding: 0.45rem 1.1rem; }
+      .btn-hero            { padding: 0.85rem 1.75rem; font-size: 1rem; width: 100%; justify-content: center; }
+      .hero-buttons        { flex-direction: column; align-items: center; gap: 1rem; }
+
+      /* Stats */
+      .stats-grid          { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+      .stat-number         { font-size: 2.25rem; }
+      .stat-item           { padding: 1.75rem 1rem; }
+
+      /* Sections */
+      .section-title       { font-size: 2rem; }
+      .section-description { font-size: 1rem; }
+
+      /* Projects */
+      .projects-grid       { grid-template-columns: 1fr; }
+
+      /* Steps */
+      .steps-grid          { grid-template-columns: 1fr; gap: 1.5rem; }
+      .cta-button          { width: 100%; justify-content: center; text-align: center; }
+
+      /* Categories */
+      .category-grid       { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+      .category-card       { padding: 1.5rem 1rem; }
+
+      /* Testimonials */
+      .testimonial-grid    { grid-template-columns: 1fr; }
+
+      /* CTA */
+      .cta-title           { font-size: 2rem; }
+      .cta-subtitle        { font-size: 1rem; }
+      .btn-cta             { width: 100%; text-align: center; padding: 1rem; }
+      .cta-buttons         { flex-direction: column; align-items: center; }
+
+      /* Footer */
+      .footer-grid         { grid-template-columns: 1fr; gap: 2rem; }
+      .footer-bottom       { flex-direction: column; text-align: center; gap: 0.75rem; }
+      .footer-policy       { justify-content: center; gap: 1rem; }
+    }
+
+    /* ===== RESPONSIVE: 480px ===== */
+    @media (max-width: 480px) {
+      .container           { padding: 0 1rem; }
+
+      .logo                { font-size: 1.4rem; }
+
+      .hero                { padding: 7.5rem 0 4rem; }
+      .hero-title          { font-size: 2rem; line-height: 1.15; }
+      .hero-subtitle       { font-size: 0.95rem; margin-bottom: 2rem; }
+      .hero-badge          { font-size: 0.78rem; text-align: center; }
+
+      .stats-grid          { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .stat-number         { font-size: 1.9rem; }
+      .stat-label          { font-size: 0.85rem; }
+      .stat-item           { padding: 1.25rem 0.75rem; border-radius: 14px; }
+
+      .section-title       { font-size: 1.75rem; }
+      .section-description { font-size: 0.92rem; }
+      .section-header      { margin-bottom: 2.5rem; }
+
+      .project-title       { font-size: 1.2rem; }
+      .project-price       { font-size: 1.45rem; }
+      .project-card        { padding: 1.5rem; border-radius: 16px; }
+
+      .step                { padding: 1.5rem; }
+      .step-title          { font-size: 1.25rem; }
+      .step-icon           { width: 65px; height: 65px; font-size: 1.6rem; }
+
+      .category-grid       { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .category-card       { padding: 1.25rem 0.75rem; border-radius: 12px; }
+      .category-icon       { width: 48px; height: 48px; font-size: 1.4rem; border-radius: 10px; }
+      .category-title      { font-size: 0.95rem; }
+      .category-count      { font-size: 0.8rem; }
+
+      .testimonial-card    { padding: 1.75rem; }
+
+      .cta-title           { font-size: 1.65rem; }
+      .cta-subtitle        { font-size: 0.92rem; }
+
+      .footer-grid         { gap: 1.5rem; }
+      .footer-heading      { font-size: 1rem; margin-bottom: 1rem; }
+      .footer-links li     { margin-bottom: 0.6rem; }
+      .footer-logo         { font-size: 1.4rem; }
+      .footer-payments     { font-size: 1.3rem; gap: 0.75rem; }
+
+      .view-all-link       { font-size: 0.95rem; padding: 0.85rem 1.5rem; }
+    }
+
+    /* ===== RESPONSIVE: 360px (smallest common phone) ===== */
+    @media (max-width: 360px) {
+      .container           { padding: 0 0.85rem; }
+
+      .logo                { font-size: 1.25rem; }
+
+      .hero-title          { font-size: 1.75rem; }
+      .hero-subtitle       { font-size: 0.88rem; }
+
+      .stats-grid          { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+      .stat-number         { font-size: 1.6rem; }
+      .stat-label          { font-size: 0.78rem; }
+      .stat-item           { padding: 1rem 0.6rem; }
+
+      .section-title       { font-size: 1.55rem; }
+
+      .category-grid       { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+
+      .mobile-menu         { padding: 1.25rem 1rem 1.75rem; }
+      .mobile-menu-auth    { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
+
+  <!-- ===== HEADER ===== -->
   <header class="header" id="header">
     <div class="container">
       <div class="header-content">
         <a href="#" class="logo">InnoBridge</a>
+
+        <!-- Desktop nav -->
         <nav class="nav-links">
           <a href="post-project.html" class="nav-link">Post Project</a>
           <a href="available-project.html" class="nav-link">Browse Projects</a>
           <a href="#" class="nav-link">How it Works</a>
         </nav>
+
+        <!-- Desktop auth -->
         <div class="auth-buttons">
           <a href="Login.html" class="btn btn-login">Login</a>
           <a href="role-selection.html" class="btn btn-signup">Sign Up</a>
         </div>
+
+        <!-- Hamburger (mobile) -->
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
+
+      <!-- Mobile dropdown menu -->
+      <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+        <a href="post-project.html" class="nav-link"><i class="ri-file-add-line"></i> Post Project</a>
+        <a href="available-project.html" class="nav-link"><i class="ri-search-line"></i> Browse Projects</a>
+        <a href="#" class="nav-link"><i class="ri-question-line"></i> How it Works</a>
+        <div class="mobile-menu-auth">
+          <a href="Login.html" class="btn btn-login">Login</a>
+          <a href="role-selection.html" class="btn btn-signup">Sign Up</a>
+        </div>
+      </nav>
     </div>
   </header>
 
-  <!-- Hero Section -->
+  <!-- ===== HERO ===== -->
   <section class="hero">
     <div class="container">
       <div class="hero-content">
@@ -1062,7 +1300,7 @@
     </div>
   </section>
 
-  <!-- Stats Section -->
+  <!-- ===== STATS ===== -->
   <section class="stats">
     <div class="container">
       <div class="stats-grid">
@@ -1086,7 +1324,7 @@
     </div>
   </section>
 
-  <!-- Featured Projects -->
+  <!-- ===== FEATURED PROJECTS ===== -->
   <section class="featured">
     <div class="container">
       <div class="section-header">
@@ -1113,7 +1351,7 @@
     </div>
   </section>
 
-  <!-- How It Works -->
+  <!-- ===== HOW IT WORKS ===== -->
   <section class="how-it-works">
     <div class="container">
       <div class="section-header">
@@ -1127,32 +1365,24 @@
       <div class="steps-grid">
         <div class="step">
           <div class="step-number">1</div>
-          <div class="step-icon">
-            <i class="ri-file-list-3-line"></i>
-          </div>
+          <div class="step-icon"><i class="ri-file-list-3-line"></i></div>
           <h3 class="step-title">Post Your Project</h3>
           <p class="step-desc">
             Create a detailed project listing with your requirements, budget, and timeline to attract qualified professionals.
           </p>
         </div>
-
         <div class="step">
           <div class="step-number">2</div>
-          <div class="step-icon">
-            <i class="ri-team-line"></i>
-          </div>
+          <div class="step-icon"><i class="ri-team-line"></i></div>
           <h3 class="step-title">Review Proposals</h3>
           <p class="step-desc">
             Receive proposals from skilled freelancers. Review their profiles, portfolios, and ratings to find the perfect match.
           </p>
         </div>
-
         <div class="step">
           <div class="step-number">3</div>
-          <div class="step-icon">
-            <i class="ri-check-double-line"></i>
-          </div>
-          <h3 class="step-title">Complete & Pay</h3>
+          <div class="step-icon"><i class="ri-check-double-line"></i></div>
+          <h3 class="step-title">Complete &amp; Pay</h3>
           <p class="step-desc">
             Collaborate seamlessly, track milestones, and release payment securely when you're satisfied with the results.
           </p>
@@ -1167,7 +1397,7 @@
     </div>
   </section>
 
-  <!-- Categories -->
+  <!-- ===== CATEGORIES ===== -->
   <section class="categories">
     <div class="container">
       <div class="section-header">
@@ -1184,43 +1414,36 @@
           <h3 class="category-title">Web Development</h3>
           <p class="category-count">1,245 projects</p>
         </a>
-
         <a href="#" class="category-card">
           <div class="category-icon"><i class="ri-smartphone-line"></i></div>
           <h3 class="category-title">Mobile Development</h3>
           <p class="category-count">876 projects</p>
         </a>
-
         <a href="#" class="category-card">
           <div class="category-icon"><i class="ri-palette-line"></i></div>
           <h3 class="category-title">Graphic Design</h3>
           <p class="category-count">1,532 projects</p>
         </a>
-
         <a href="#" class="category-card">
           <div class="category-icon"><i class="ri-video-line"></i></div>
           <h3 class="category-title">Video Production</h3>
           <p class="category-count">658 projects</p>
         </a>
-
         <a href="#" class="category-card">
           <div class="category-icon"><i class="ri-article-line"></i></div>
           <h3 class="category-title">Content Writing</h3>
           <p class="category-count">1,089 projects</p>
         </a>
-
         <a href="#" class="category-card">
           <div class="category-icon"><i class="ri-megaphone-line"></i></div>
           <h3 class="category-title">Digital Marketing</h3>
           <p class="category-count">924 projects</p>
         </a>
-
         <a href="#" class="category-card">
           <div class="category-icon"><i class="ri-translate-2"></i></div>
           <h3 class="category-title">Translation</h3>
           <p class="category-count">756 projects</p>
         </a>
-
         <a href="#" class="category-card">
           <div class="category-icon"><i class="ri-more-line"></i></div>
           <h3 class="category-title">More Categories</h3>
@@ -1230,7 +1453,7 @@
     </div>
   </section>
 
-  <!-- Testimonials -->
+  <!-- ===== TESTIMONIALS ===== -->
   <section class="testimonials">
     <div class="container">
       <div class="section-header">
@@ -1244,11 +1467,8 @@
       <div class="testimonial-grid">
         <div class="testimonial-card">
           <div class="stars">
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
+            <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            <i class="ri-star-fill"></i><i class="ri-star-fill"></i>
           </div>
           <p class="testimonial-text">"I've been using this platform for over a year now, and it has completely transformed how I find work. The project matching system is excellent, and the payment protection gives me peace of mind."</p>
           <div class="testimonial-user">
@@ -1262,11 +1482,8 @@
 
         <div class="testimonial-card">
           <div class="stars">
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
+            <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            <i class="ri-star-fill"></i><i class="ri-star-fill"></i>
           </div>
           <p class="testimonial-text">"As a business owner, finding reliable talent used to be a challenge. This platform has made it incredibly easy to connect with skilled professionals who deliver quality work on time and within budget."</p>
           <div class="testimonial-user">
@@ -1280,11 +1497,8 @@
 
         <div class="testimonial-card">
           <div class="stars">
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
-            <i class="ri-star-fill"></i>
+            <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            <i class="ri-star-fill"></i><i class="ri-star-fill"></i>
           </div>
           <p class="testimonial-text">"The messaging and collaboration tools make working with clients seamless. I can share files, track milestones, and communicate effectively all in one place. It's revolutionized my freelance career."</p>
           <div class="testimonial-user">
@@ -1299,7 +1513,7 @@
     </div>
   </section>
 
-  <!-- CTA Section -->
+  <!-- ===== CTA SECTION ===== -->
   <section class="cta-section">
     <div class="container">
       <div class="cta-content">
@@ -1316,7 +1530,7 @@
     </div>
   </section>
 
-  <!-- Footer -->
+  <!-- ===== FOOTER ===== -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
@@ -1389,84 +1603,90 @@
   </footer>
 
   <script>
-    // Header scroll effect
+    // ===== Header scroll effect =====
     window.addEventListener('scroll', () => {
       const header = document.getElementById('header');
-      if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
+      header.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ===== Hamburger menu toggle =====
+    const hamburger   = document.getElementById('hamburger');
+    const mobileMenu  = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      hamburger.classList.toggle('open', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+    });
+
+    // Close menu when a link inside it is tapped
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', false);
+      });
+    });
+
+    // Close menu on outside tap
+    document.addEventListener('click', (e) => {
+      if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+        mobileMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', false);
       }
     });
 
-    // Fetch and display featured projects
+    // ===== Load featured projects =====
     const skillColor = (category = '') => {
       const colorMap = {
-        'web': 'blue',
-        'mobile': 'green',
-        'design': 'purple',
-        'video': 'orange',
-        'writing': 'teal',
-        'marketing': 'blue',
-        'technical': 'blue',
-        'business': 'teal'
+        'web': 'blue', 'mobile': 'green', 'design': 'purple',
+        'video': 'orange', 'writing': 'teal', 'marketing': 'blue',
+        'technical': 'blue', 'business': 'teal'
       };
-      const key = Object.keys(colorMap).find(k => 
-        category.toLowerCase().includes(k)
-      );
+      const key = Object.keys(colorMap).find(k => category.toLowerCase().includes(k));
       return colorMap[key] || 'blue';
     };
 
     const formatPostedTime = (dateString) => {
-      const now = new Date();
+      const now    = new Date();
       const posted = new Date(dateString);
       const seconds = Math.floor((now - posted) / 1000);
       const minutes = Math.floor(seconds / 60);
-      const hours = Math.floor(minutes / 60);
-      const days = Math.floor(hours / 24);
-      const weeks = Math.floor(days / 7);
-      const months = Math.floor(days / 30);
-
+      const hours   = Math.floor(minutes / 60);
+      const days    = Math.floor(hours / 24);
+      const weeks   = Math.floor(days / 7);
+      const months  = Math.floor(days / 30);
       if (seconds < 60) return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
       if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
-      if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-      if (days < 7) return `${days} day${days !== 1 ? 's' : ''} ago`;
-      if (weeks < 4) return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
+      if (hours   < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+      if (days    < 7)  return `${days} day${days !== 1 ? 's' : ''} ago`;
+      if (weeks   < 4)  return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
       return `${months} month${months !== 1 ? 's' : ''} ago`;
     };
 
     document.addEventListener('DOMContentLoaded', async () => {
       const container = document.getElementById('projectsGrid');
-      
       try {
-        const res = await fetch('http://localhost:3000/api/projects');
+        const res      = await fetch('http://localhost:3000/api/projects');
         const projects = await res.json();
-
-        // Filter only open projects and get top 3
-        const openProjects = projects.filter(p => p.status === 'open');
-        const topThree = openProjects.slice(0, 3);
+        const topThree = projects.filter(p => p.status === 'open').slice(0, 3);
 
         if (topThree.length === 0) {
           container.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-              <i class="ri-inbox-line" style="font-size: 3rem; color: var(--gray); margin-bottom: 1rem;"></i>
-              <p style="color: var(--gray);">No projects available at the moment. Check back soon!</p>
-            </div>
-          `;
+            <div style="grid-column:1/-1;text-align:center;padding:3rem;">
+              <i class="ri-inbox-line" style="font-size:3rem;color:var(--gray);display:block;margin-bottom:1rem;"></i>
+              <p style="color:var(--gray);">No projects available at the moment. Check back soon!</p>
+            </div>`;
           return;
         }
 
         container.innerHTML = '';
-
         topThree.forEach(project => {
           const badgeColor = `badge-${skillColor(project.skillCategory)}`;
-          const postedAgo = formatPostedTime(project.createdAt);
-          const deadline = project.deadline 
-            ? new Date(project.deadline).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric' 
-              })
+          const postedAgo  = formatPostedTime(project.createdAt);
+          const deadline   = project.deadline
+            ? new Date(project.deadline).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
             : 'Flexible';
 
           const card = document.createElement('div');
@@ -1476,7 +1696,6 @@
             <h3 class="project-title">${project.title || 'Untitled Project'}</h3>
             <div class="project-price">${project.currency || '$'}${project.budget || '0'}</div>
             <p class="project-description">${project.description || 'No description provided.'}</p>
-            
             <div class="project-footer">
               <div class="user-info">
                 <div class="avatar"><i class="ri-user-line"></i></div>
@@ -1484,29 +1703,21 @@
               </div>
               <div class="post-time">${postedAgo}</div>
             </div>
-
             <div class="project-meta">
-              <div class="meta-item">
-                <i class="ri-time-line"></i>
-                <span>${deadline}</span>
-              </div>
+              <div class="meta-item"><i class="ri-time-line"></i><span>${deadline}</span></div>
               <a href="available-project.html?id=${project._id}" class="view-details">
                 View Details <i class="ri-arrow-right-line"></i>
               </a>
-            </div>
-          `;
-          
+            </div>`;
           container.appendChild(card);
         });
-
       } catch (error) {
         console.error('Error loading projects:', error);
         container.innerHTML = `
-          <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-            <i class="ri-alert-line" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem;"></i>
-            <p style="color: var(--gray);">Failed to load projects. Please try again later.</p>
-          </div>
-        `;
+          <div style="grid-column:1/-1;text-align:center;padding:3rem;">
+            <i class="ri-alert-line" style="font-size:3rem;color:#ef4444;display:block;margin-bottom:1rem;"></i>
+            <p style="color:var(--gray);">Failed to load projects. Please try again later.</p>
+          </div>`;
       }
     });
   </script>
